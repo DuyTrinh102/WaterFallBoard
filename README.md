@@ -18,6 +18,7 @@ Game đầu tiên, dựa trên luật Waterfall Park; tên hiển thị nội b�
 | Test engine + bố cục | `npm test` |
 | Test giao diện (Playwright) | `npm run e2e` (dùng Chromium tại `/opt/pw-browsers/...`; đổi bằng biến `PW_CHROMIUM`) |
 | Ván mô phỏng không UI | `npm run simulate -- --players 4 --seed demo` |
+| Demo 2.5D (thử nghiệm, chưa thuộc game) | `npm run dev:demo3d` hoặc `npm run build:demo3d` → `dist-demo3d/index.html` |
 
 Chế độ kiosk/toàn màn hình do hệ điều hành và trình duyệt cấu hình (ví dụ `chromium --kiosk http://127.0.0.1:4173`); ứng dụng không tự khoá máy.
 
@@ -51,6 +52,12 @@ src/persistence/                   IndexedDB, khoá một tab, export
 src/app/                           launcher, tạo ván, pause, session
 docs/                              brief, rules-spec, kiến trúc, UX, kế hoạch
 ```
+
+## Demo 2.5D
+
+`demo3d/` + `src/demo3d/`: bàn chơi dựng bằng Three.js, camera nhìn thẳng từ trên xuống, mô hình low-poly
+dựng từ khối hình học, hiệu ứng xây và xu bay về khay, nút thử camera nghiêng và đo fps. Dùng engine và bản đồ
+thật (ván mô phỏng). Mục đích: đo trên màn hình quán trước khi quyết định đưa 3D vào game.
 
 ## Giới hạn hiện tại
 

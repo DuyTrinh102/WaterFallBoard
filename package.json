@@ -12,19 +12,24 @@
     "typecheck": "tsc --noEmit",
     "simulate": "tsx scripts/simulate.ts",
     "e2e": "playwright test",
-    "build:artifact": "npm run build:single && node scripts/make-artifact.mjs"
+    "build:artifact": "npm run build:single && node scripts/make-artifact.mjs",
+    "dev:demo3d": "vite -c vite.demo3d.config.ts",
+    "build:demo3d": "vite build -c vite.demo3d.config.ts",
+    "build:demo3d-artifact": "npm run build:demo3d && node scripts/make-artifact.mjs dist-demo3d/index.html dist-demo3d/thac-cong-vien-25d.html \"Thác Công viên 2.5D\""
   },
   "dependencies": {
     "@fontsource/baloo-2": "5.2.5",
     "@fontsource/be-vietnam-pro": "5.2.5",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "three": "0.160.0"
   },
   "devDependencies": {
     "@playwright/test": "1.56.1",
     "@types/node": "22.15.30",
     "@types/react": "19.1.8",
     "@types/react-dom": "19.1.6",
+    "@types/three": "0.160.0",
     "@vitejs/plugin-react": "4.5.0",
     "tsx": "4.20.3",
     "typescript": "5.8.3",

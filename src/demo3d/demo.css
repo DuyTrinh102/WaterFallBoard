@@ -1,0 +1,20 @@
+:root { color-scheme: dark; --lagoon: #0d3b44; --ink: #1b2a2f; --tray: #fbfbf7; --accent: #ffb400; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: var(--lagoon); font-family: "Be Vietnam Pro", system-ui, sans-serif; user-select: none; -webkit-user-select: none; touch-action: none; }
+#scene { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+.seat { position: fixed; display: flex; gap: 14px; align-items: center; padding: 8px 20px; border-radius: 999px; background: var(--tray); color: var(--ink); font-size: clamp(14px, 1.4vw, 22px); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4); }
+.seat b { font-family: "Baloo 2", sans-serif; font-weight: 800; }
+.seat span { font-family: "Baloo 2", sans-serif; font-weight: 800; color: #8a5800; }
+.seat .pop, .seat span.pop { animation: pop 0.35s ease-out; }
+@keyframes pop { 40% { transform: scale(1.35); } }
+.seat.s { left: 50%; bottom: 2vh; transform: translateX(-50%); }
+.seat.n { left: 50%; top: 2vh; transform: translateX(-50%) rotate(180deg); }
+.seat.w { left: 1vw; top: 50%; transform: translate(-30%, -50%) rotate(90deg); }
+.seat.e { right: 1vw; top: 50%; transform: translate(30%, -50%) rotate(-90deg); }
+.panel { position: fixed; left: 1.2vw; top: 1.6vh; display: flex; flex-direction: column; gap: 8px; align-items: stretch; max-width: 240px; }
+.panel button { min-height: 52px; border-radius: 14px; border: 2px solid #c9d3cf; background: var(--tray); color: var(--ink); font: 700 16px "Be Vietnam Pro", sans-serif; padding: 0 14px; cursor: pointer; }
+.panel button:focus-visible { outline: 4px solid var(--accent); }
+.panel .tag { font-size: 12px; letter-spacing: 1px; color: #f3d68e; border: 1px solid #e8c26a; border-radius: 6px; padding: 3px 8px; }
+#fps { font: 600 13px "Be Vietnam Pro", sans-serif; color: #d8ece4; }
+#info { position: fixed; right: 1.2vw; bottom: 2vh; max-width: 40vw; padding: 8px 16px; border-radius: 14px; background: rgba(251, 251, 247, 0.92); color: var(--ink); font-weight: 600; font-size: 16px; }
+body.tilted .seat.n, body.tilted .seat.w, body.tilted .seat.e { opacity: 0.85; }
+@media (prefers-reduced-motion: reduce) { .seat span.pop { animation: none; } }

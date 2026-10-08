@@ -127,3 +127,9 @@ Kiểm chứng đã chạy: `npm test` (47 test: engine, oracle thu nhập, xoay
 | Q-01, H-01…H-04 | ⏳ cần thiết bị thật |
 
 Gap list bổ sung: kéo-thả; giao dịch > 2 bên trên UI; âm thanh/mute; PIN nhân viên; checkpoint theo pha; ván mẫu tương tác; animation xây/nhận tiền tối giản.
+
+### Cập nhật giao diện & 2.5D
+
+- Áp thiết kế “bản đồ công viên vẽ tay” (canvas Claude Design): icon nét vẽ thay emoji, màu theo loại trò chơi, huy hiệu người chơi tròn/vuông, font đóng gói tại chỗ (SIL OFL).
+- Demo 2.5D tách riêng (`npm run build:demo3d`). Chưa đưa vào game. Cần đo fps trên máy quán ở 1080p và 4K, chế độ chất lượng cao/tiết kiệm; số đo trong môi trường CI (WebGL phần mềm) không có ý nghĩa.
+- `npm audit`: 0 lỗ hổng trong dependency chạy thật; các cảnh báo còn lại nằm ở công cụ build/test (rollup đang pin 4.40.0 vì 4.64.2 treo khi đóng gói react-dom). Cần xem lại khi nâng Vite.
