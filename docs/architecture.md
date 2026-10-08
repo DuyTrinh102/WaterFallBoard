@@ -176,6 +176,17 @@ Reload: hủy mọi pointer session/preview; proposal về trạng thái chưa x
 
 Export/import: JSON có `schemaVersion, rulesetVersion, gameId, revision, rng, …`; import validate chặt + xác nhận thay ván hiện tại (khu vực nhân viên).
 
+## 9b. Vận hành tại quán
+
+| Chủ đề | Ứng dụng làm | Ứng dụng KHÔNG làm được / cần OS-browser |
+|---|---|---|
+| Fullscreen | Nút vào fullscreen (Fullscreen API, cần cử chỉ người dùng); tự nhắc khi bị thoát | Không ngăn được thoát fullscreen, phím tắt hệ thống, cử chỉ vuốt cạnh. **Fullscreen ≠ kiosk an toàn** |
+| Kiosk | Hướng dẫn cấu hình (H-04) | Khóa máy, auto-start Chromium `--kiosk`, tắt cập nhật tự động, tắt cử chỉ OS: làm ở OS/browser, không tự cấu hình máy quán |
+| Cập nhật | Bundle có `buildVersion`; save ghi `rulesetVersion` + snapshot topology | **Không áp bản cập nhật giữa ván**: server cục bộ chỉ đổi `dist/` khi không có ván đang chạy; nếu build mới mở ván cũ ⇒ dùng ruleset snapshot trong save |
+| Vùng nhân viên | Mở bằng nhấn giữ 3 s ở góc + PIN tùy chọn (lưu hash) | PIN cục bộ **không** phải biện pháp bảo mật mạnh — chỉ chống bấm nhầm |
+| Âm thanh | Hiệu ứng ngắn, âm lượng thấp, nút mute ở menu pause và vùng nhân viên; đóng gói tại chỗ | — |
+| Dữ liệu cá nhân | Chỉ lưu tên/nghệ danh tùy chọn trong save cục bộ; không analytics, không gửi mạng | Export JSON là dữ liệu quản trị, có thể chứa thông tin riêng của ván |
+
 ## 10. Table layer (UI không chứa luật)
 
 - `SeatLayout` cho 3/4/5: mỗi seat `{ id, edge: "S"|"N"|"E"|"W", span: [from,to], rotationDeg: 0|90|180|270 }`.

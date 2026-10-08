@@ -31,6 +31,17 @@ Cần chủ sản phẩm: (a) mở quyền mạng tới `cdn.svc.asmodee.net`, `
 
 Quy tắc engine: ruleset `wp-original` chỉ được bật `standardSelectable = true` khi mọi mục đánh dấu ⚑ (ảnh hưởng kết quả) là VERIFIED. Dữ liệu giả lập nằm ở `tests/fixtures/` với `rulesetId` bắt đầu bằng `fixture-` và cờ `isFixture: true`; UI tạo ván ở chế độ tiêu chuẩn không liệt kê được chúng.
 
+## 1b. Baseline do chủ sản phẩm xác nhận (sửa mô tả ban đầu)
+
+| Baseline | Hệ quả cho engine |
+|---|---|
+| 4 vòng | `round ∈ 1..4`, không cấu hình số vòng trong ruleset gốc |
+| 4 pha: chuẩn bị → trao đổi → xây dựng → thu nhập | State machine cố định thứ tự pha |
+| **Không** xây chồng tầng | ≤ 1 tuile / ô; không có “cấp” công trình |
+| Bàn có **vị trí cố định**, không rút hex ghép bản đồ | Topology là dữ liệu tĩnh trong ruleset; không có command đặt/ghép ô bản đồ |
+| Công trình giữ nguyên vị trí, có thể đổi chủ | Giao dịch đổi `owner` của ô; không có command di chuyển tuile |
+| Thu nhập theo bảng + cách phân chia hợp lệ, **không** dùng hàm cấp số nhân | Thu nhập chỉ tra bảng dữ liệu có nguồn |
+
 ## 2. Bảng kiểm chứng theo nhóm
 
 ### G1. Thành phần, số lượng, thiết lập đầu ván ⚑

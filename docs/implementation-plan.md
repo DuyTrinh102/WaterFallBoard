@@ -83,6 +83,10 @@ Gate M2: U-06.
 | H-03 | Buổi chơi thật 3/4/5 người, ghi quan sát | H-02 | ≥ 1 ván trọn mỗi cấu hình; log điểm gây gián đoạn | Biên bản | M |
 | H-04 | Kiosk/OS config hướng dẫn (không tự cấu hình máy quán) | O-01 | Tài liệu tách rõ phần app vs OS | Review | L |
 
+### Giới hạn kiểm chứng tự động
+
+Pointer/touch mô phỏng (Playwright, CDP) chỉ chứng minh logic nhiều pointer; **không** chứng minh phần cứng hỗ trợ đủ số điểm chạm, palm rejection, độ trễ hay độ chính xác. Các mục đó chỉ được báo “đạt” sau H-01 trên thiết bị thật. Ngưỡng p95 < 100 ms, 60 fps, ván 45–60 phút là mục tiêu đo, chưa phải kết quả.
+
 ## 4. Gap list (luật gốc chưa được UI hỗ trợ trong MVP)
 
 - Giao dịch > 2 bên nguyên tử: engine có, UI MVP chưa (DA-13).
