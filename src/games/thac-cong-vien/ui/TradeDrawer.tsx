@@ -2,9 +2,11 @@ import { t } from "../../../shared/i18n";
 import { Tap } from "../../../shared/Tap";
 import { handTiles, ownedCells } from "../engine/game";
 import type { GameState, Player, Transfer } from "../engine/types";
+import { TileGlyph } from "./Board";
+import { TILE_TINT } from "./icons";
 import type { TradeDraft, TrayActions } from "./Tray";
 import { Money } from "./Tray";
-import { attrOf, tileIcon } from "./util";
+import { attrOf } from "./util";
 
 function AssetPicker({ state, owner, selected, onToggle }: { state: GameState; owner: Player; selected: string[]; onToggle: (k: string) => void }) {
   const cells = ownedCells(state, owner.id);
@@ -14,19 +16,22 @@ function AssetPicker({ state, owner, selected, onToggle }: { state: GameState; o
       {cells.map((c) => {
         const k = `cell:${c}`;
         const tile = state.cells[c].tile;
+        const on = selected.includes(k);
         return (
-          <Tap key={k} className={selected.includes(k) ? "chip asset on" : "chip asset"} onTap={() => onToggle(k)}>
+          <Tap key={k} className={`chip asset${tile ? " has-tile" : ""}${on ? " on" : ""}`} onTap={() => onToggle(k)}>
             ô {c}
-            {tile ? ` ${tileIcon(state, tile)}` : ""}
+            {tile && <TileGlyph type={state.tileTypes[tile]} size={26} />}
           </Tap>
         );
       })}
       {tiles.map((tid) => {
         const k = `tile:${tid}`;
-        const a = attrOf(state, state.tileTypes[tid]);
+        const type = state.tileTypes[tid];
+        const a = attrOf(state, type);
+        const on = selected.includes(k);
         return (
-          <Tap key={k} className={selected.includes(k) ? "chip asset on" : "chip asset"} onTap={() => onToggle(k)}>
-            {a.icon}
+          <Tap key={k} className={on ? "chip asset on" : "chip asset"} style={on ? undefined : { background: TILE_TINT[type] }} onTap={() => onToggle(k)} ariaLabel={t(a.nameKey)}>
+            <TileGlyph type={type} size={30} />
             <small>{a.maxSize}</small>
           </Tap>
         );
@@ -38,9 +43,9 @@ function AssetPicker({ state, owner, selected, onToggle }: { state: GameState; o
 function CoinStepper({ value, onChange }: { value: number; onChange: (v: number) => void }) {
   return (
     <div className="stepper">
-      <Tap className="btn small" onTap={() => onChange(Math.max(0, value - 1))}>−</Tap>
-      <span className="coins">💰 {value}</span>
-      <Tap className="btn small" onTap={() => onChange(value + 1)}>＋</Tap>
+      <Tap className="btn small" onTap={() => onChange(Math.max(0, value - 1))} ariaLabel="Bớt xu">−</Tap>
+      <span className="coins">{value} xu</span>
+      <Tap className="btn small" onTap={() => onChange(value + 1)} ariaLabel="Thêm xu">＋</Tap>
     </div>
   );
 }
@@ -68,17 +73,17 @@ export function TradeDrawer({ state, player, draft, actions }: { state: GameStat
   if (!draft.partner) {
     return (
       <div className="drawer trade">
-        <div className="label">{t("trade.choosePartner")}</div>
-        <div className="chips">
+        <span className="title">{t("trade.choosePartner")}</span>
+        <div className="chips grow" style={{ alignContent: "center", justifyContent: "center", gap: 14 }}>
           {state.players
             .filter((p) => p.id !== player.id)
             .map((p) => (
-              <Tap key={p.id} className="chip partner" style={{ borderColor: p.color }} onTap={() => setDraft({ partner: p.id })}>
-                <span style={{ color: p.color }}>{p.icon}</span> {p.name}
+              <Tap key={p.id} className="chip partner" style={{ background: p.color }} onTap={() => setDraft({ partner: p.id })}>
+                {p.icon} {p.name}
               </Tap>
             ))}
         </div>
-        <div className="row">
+        <div className="row" style={{ justifyContent: "flex-end" }}>
           <Tap className="btn" onTap={close}>{t("trade.close")}</Tap>
         </div>
       </div>
@@ -95,21 +100,24 @@ export function TradeDrawer({ state, player, draft, actions }: { state: GameStat
   return (
     <div className="drawer trade">
       <div className="row between">
-        <div className="label">
-          🤝 {player.icon} {player.name} ⇄ <span style={{ color: partner.color }}>{partner.icon}</span> {partner.name}
-          {draft.tradeId ? ` · ${draft.tradeId}` : ""}
+        <div className="row" style={{ flexWrap: "nowrap", gap: 10 }}>
+          <span className="title">Giao dịch</span>
+          <span className="who-pill" style={{ background: player.color }}>{player.icon} {player.name}</span>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1B2A2F" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 8h14l-4-4M20 16H6l4 4" /></svg>
+          <span className="who-pill" style={{ background: partner.color }}>{partner.icon} {partner.name}</span>
+          {draft.tradeId && <span className="fine">sửa {draft.tradeId}</span>}
         </div>
-        <Money state={state} player={player} />
+        <span style={{ background: player.color, borderRadius: 999 }}><Money state={state} player={player} /></span>
       </div>
       <div className="two-col grow">
         <div className="col side">
-          <div className="label">{t("trade.youGive")}</div>
+          <div className="label give">{t("trade.youGive")}</div>
           <AssetPicker state={state} owner={player} selected={draft.give} onToggle={(k) => toggle("give", k)} />
           <CoinStepper value={draft.giveCoins} onChange={(v) => setDraft({ giveCoins: v })} />
         </div>
         <div className="col side">
-          <div className="label">
-            {t("trade.youGet")} ({partner.icon} {partner.name})
+          <div className="label get">
+            {t("trade.youGet")} · từ {partner.name}
           </div>
           <AssetPicker state={state} owner={partner} selected={draft.get} onToggle={(k) => toggle("get", k)} />
           <CoinStepper value={draft.getCoins} onChange={(v) => setDraft({ getCoins: v })} />
@@ -117,7 +125,7 @@ export function TradeDrawer({ state, player, draft, actions }: { state: GameStat
       </div>
       <div className="row between">
         <span className="fine">{t("trade.promiseNote")}</span>
-        <div className="row">
+        <div className="row" style={{ flexWrap: "nowrap" }}>
           <Tap className="btn" onTap={close}>{t("trade.close")}</Tap>
           <Tap className="btn primary" onTap={send}>{draft.tradeId ? t("trade.sendRevision") : t("trade.send")}</Tap>
         </div>

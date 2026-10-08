@@ -47,19 +47,19 @@ test("3 người chơi trọn một vòng: chọn địa điểm → giao dịch
   await trays.nth(0).getByRole("button", { name: /Bình/ }).click();
   const sides = trays.nth(0).locator(".drawer .side");
   await sides.nth(0).locator(".chip.asset").first().click();
-  await sides.nth(0).getByRole("button", { name: "＋" }).click();
-  await sides.nth(0).getByRole("button", { name: "＋" }).click();
+  await sides.nth(0).getByRole("button", { name: "Thêm xu" }).click();
+  await sides.nth(0).getByRole("button", { name: "Thêm xu" }).click();
   await sides.nth(1).locator(".chip.asset", { hasText: /^[^ô]/ }).first().click();
   await shot(page, "04-trade-drawer");
   await trays.nth(0).getByRole("button", { name: "Gửi đề nghị" }).click();
   await expect(trays.nth(1).locator(".trade-card.offer")).toBeVisible();
   await shot(page, "05-trade-offer");
   await trays.nth(1).getByRole("button", { name: "Đồng ý" }).click();
-  await expect(trays.nth(0).getByText("Giao dịch thành công ✓")).toBeVisible();
+  await expect(trays.nth(0).getByText("Giao dịch thành công")).toBeVisible();
   await expect(trays.nth(0).locator(".money")).toHaveText(/3 xu/);
   await expect(trays.nth(1).locator(".money")).toHaveText(/7 xu/);
 
-  for (let i = 0; i < 3; i++) await trays.nth(i).getByRole("button", { name: "Xong ✓" }).click();
+  for (let i = 0; i < 3; i++) await trays.nth(i).getByRole("button", { name: "Xong", exact: true }).click();
   await expect(page.locator(".phase-pill").first()).toHaveText("Xây dựng");
 
   // Xây: người 0 chọn ô trên bàn chung, người 1–2 chọn trên bản đồ nhỏ trong khay.
@@ -73,11 +73,11 @@ test("3 người chơi trọn một vòng: chọn địa điểm → giao dịch
     }
     await expect(trays.nth(i).getByText(/Xây .* tại ô/)).toBeVisible();
     if (i === 0) await shot(page, "07-build-preview");
-    await trays.nth(i).getByRole("button", { name: "Xây ✓" }).click();
+    await trays.nth(i).getByRole("button", { name: "Xây", exact: true }).click();
   }
-  await expect(page.locator(".board-wrap text").filter({ hasText: /[🎪👻🚀🎠🚂🛶🎢🎡🌊]/ })).toHaveCount(3);
+  await expect(page.locator(".board-wrap g.token-g")).toHaveCount(3);
 
-  for (let i = 0; i < 3; i++) await trays.nth(i).getByRole("button", { name: "Xong ✓" }).click();
+  for (let i = 0; i < 3; i++) await trays.nth(i).getByRole("button", { name: "Xong", exact: true }).click();
   await expect(page.locator(".phase-pill").first()).toHaveText("Thu nhập");
   await expect(page.locator(".center-banner")).toBeVisible();
   await shot(page, "08-income");

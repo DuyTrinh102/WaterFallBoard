@@ -2,19 +2,20 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 import { useSession, type GameSession } from "../../../app/session";
 import { t } from "../../../shared/i18n";
 import { Tap } from "../../../shared/Tap";
-import { buildableCells } from "../engine/game";
-import type { CellId, Command, GameState, Player } from "../engine/types";
-import { Board, type CellMark } from "./Board";
-import { PrivateDrawer, ReadyButton, TrayBody, Money, type SeatUi, type TrayActions } from "./Tray";
-import { TradeDrawer } from "./TradeDrawer";
-import { errorText, tileIcon } from "./util";
 import { innerSize, LAYOUTS, SLOTS, STAGE_H, STAGE_W, TRAY, type SeatSlot } from "../../../table/layouts";
+import { buildableCells } from "../engine/game";
+import type { CellId, Command, GameState, Phase, Player } from "../engine/types";
+import { Board, type CellMark } from "./Board";
+import { TradeDrawer } from "./TradeDrawer";
+import { Badge, Money, PrivateDrawer, ReadyButton, TrayBody, type SeatUi, type TrayActions } from "./Tray";
+import { errorText } from "./util";
 
 const BOARD_X = TRAY;
 const BOARD_Y = TRAY;
 const BOARD_W = STAGE_W - 2 * TRAY;
 const BOARD_H = STAGE_H - 2 * TRAY;
-const BOARD_PX = 1260;
+const BOARD_PX = 1272;
+const PHASES: Phase[] = ["preparation", "exchange", "construction", "income"];
 
 function Rotated({ slot, children, className }: { slot: SeatSlot; children: ReactNode; className?: string }) {
   const { w, h } = innerSize(slot);
@@ -27,37 +28,69 @@ function Rotated({ slot, children, className }: { slot: SeatSlot; children: Reac
   );
 }
 
-function StatusLine({ state }: { state: GameState }) {
+export function PauseIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="#0D3B44" aria-hidden="true">
+      <rect x="6" y="5" width="4" height="14" rx="1.5" />
+      <rect x="14" y="5" width="4" height="14" rx="1.5" />
+    </svg>
+  );
+}
+
+function StatusLine({ state, compact }: { state: GameState; compact?: boolean }) {
   const readyCount = state.players.filter((p) => state.ready[p.id]).length;
   return (
     <div className="status-line">
       <b>{t("status.round", { round: state.round, rounds: state.ruleset.rounds })}</b>
-      <span className="phase-pill">{t(`phase.${state.phase}`)}</span>
-      {state.phase !== "preparation" && state.phase !== "ended" && <span>{t("status.ready", { n: readyCount, total: state.players.length })}</span>}
-      {state.ruleset.isFixture && <span className="fixture">{t("app.fixtureBadge")}</span>}
+      {state.phase === "ended" ? (
+        <span className="phase-pill">{t("phase.ended")}</span>
+      ) : (
+        PHASES.map((ph, i) =>
+          ph === state.phase ? (
+            <span key={ph} className="phase-pill">{t(`phase.${ph}`)}</span>
+          ) : compact ? null : (
+            <span key={ph} className="step">
+              {i > PHASES.indexOf(state.phase) ? "› " : ""}
+              {t(`phase.${ph}`)}
+              {i < PHASES.indexOf(state.phase) ? " ›" : ""}
+            </span>
+          ),
+        )
+      )}
+      {state.phase !== "preparation" && state.phase !== "ended" && (
+        <>
+          <span className="gap" />
+          <span>{t("status.ready", { n: readyCount, total: state.players.length })}</span>
+        </>
+      )}
+      {state.ruleset.isFixture && !compact && (
+        <>
+          <span className="gap" />
+          <span className="fixture">DỮ LIỆU THỬ NGHIỆM</span>
+        </>
+      )}
     </div>
   );
 }
 
 function IncomeTable({ state }: { state: GameState }) {
   const rs = state.ruleset;
-  const sizes = [3, 4, 5];
   return (
     <div className="income-table">
-      <div className="label">Bảng thu nhập (thử nghiệm)</div>
+      <div className="label">Bảng thu nhập · thử nghiệm</div>
       <table>
         <thead>
           <tr>
-            <th>Tối đa</th>
+            <th>Cỡ đủ</th>
             <th>1</th>
             <th>2</th>
             <th>3</th>
             <th>4</th>
-            <th>★ đủ</th>
+            <th>Đủ bộ</th>
           </tr>
         </thead>
         <tbody>
-          {sizes.map((m) => (
+          {[3, 4, 5].map((m) => (
             <tr key={m}>
               <td>{m}</td>
               {[1, 2, 3, 4].map((s) => (
@@ -121,7 +154,7 @@ export function GameScreen({ session, onPause, onReplay, onHome }: { session: Ga
     [session, setUi],
   );
 
-  // Toast lỗi tự tắt.
+  // Thông báo lỗi tự tắt.
   useEffect(() => {
     const has = Object.values(ui).some((u) => u.message);
     if (!has) return;
@@ -138,13 +171,13 @@ export function GameScreen({ session, onPause, onReplay, onHome }: { session: Ga
   // Bàn chung: đánh dấu ô xây được của mọi người đang chọn tuile.
   const { marks, previews } = useMemo(() => {
     const marks = new Map<CellId, CellMark>();
-    const previews: { cell: CellId; icon: string }[] = [];
+    const previews: { cell: CellId; type: string }[] = [];
     if (state.phase === "construction") {
       for (const p of state.players) {
         const u = ui[p.id];
         if (!u?.armedTile) continue;
-        for (const c of buildableCells(state, p.id)) marks.set(c, { color: p.color, kind: u.pendingCell === c ? "selected" : "buildable" });
-        if (u.pendingCell) previews.push({ cell: u.pendingCell, icon: tileIcon(state, u.armedTile) });
+        for (const c of buildableCells(state, p.id)) if (u.pendingCell !== c) marks.set(c, { color: p.color, kind: "buildable" });
+        if (u.pendingCell) previews.push({ cell: u.pendingCell, type: state.tileTypes[u.armedTile] });
       }
     }
     return { marks, previews };
@@ -171,9 +204,10 @@ export function GameScreen({ session, onPause, onReplay, onHome }: { session: Ga
 
   return (
     <div className="game" style={{ width: STAGE_W, height: STAGE_H }}>
+      <div className="pond" />
       <div className="board-area" style={{ left: BOARD_X, top: BOARD_Y, width: BOARD_W, height: BOARD_H }}>
         <div className="status top">
-          <StatusLine state={state} />
+          <StatusLine state={state} compact />
         </div>
         <div className="board-wrap">
           <Board state={state} width={BOARD_PX} marks={marks} previews={previews} badges={badges} onCellTap={onBoardTap} />
@@ -189,19 +223,20 @@ export function GameScreen({ session, onPause, onReplay, onHome }: { session: Ga
         )}
         {seatCheckDone && prepTurn && (
           <div className="center-overlay soft">
-            <h2>
-              🔒 Lượt xem riêng: {prepTurn.icon} {prepTurn.name}
-            </h2>
-            <p>Mọi người khác vui lòng quay đi 🙈</p>
+            <div className="row" style={{ flexWrap: "nowrap" }}>
+              <Badge player={prepTurn} size={44} />
+              <h2>Lượt xem riêng: {prepTurn.name}</h2>
+            </div>
+            <p>Mọi người khác vui lòng quay đi.</p>
           </div>
         )}
         {state.phase === "income" && (
           <div className="center-banner">
-            💰 {t("income.title", { round: state.round })} —{" "}
+            <b>{t("income.title", { round: state.round })}</b>
             {state.paidIncome[state.round]?.players.map((p) => {
               const pl = state.players.find((x) => x.id === p.player)!;
               return (
-                <span key={p.player} style={{ color: pl.color, marginRight: 16 }}>
+                <span key={p.player} style={{ color: pl.color }}>
                   {pl.icon} {pl.name} +{p.total}
                 </span>
               );
@@ -210,20 +245,24 @@ export function GameScreen({ session, onPause, onReplay, onHome }: { session: Ga
         )}
         {state.phase === "ended" && state.result && (
           <div className="center-overlay result">
-            <h2>🏆 {t("result.title")}</h2>
+            <h2>{t("result.title")}</h2>
             {state.result.map((r) => {
               const pl = state.players.find((p) => p.id === r.player)!;
               const tie = state.result!.filter((x) => x.rank === r.rank).length > 1;
               return (
-                <div key={r.player} className="rank-row" style={{ color: pl.color }}>
-                  {t("result.rank", { rank: r.rank, name: `${pl.icon} ${pl.name}`, coins: r.coins, tiles: r.tilesOnBoard })}
-                  {tie ? ` · ${t("result.tie")}` : ""}
+                <div key={r.player} className="rank-row" style={{ background: r.rank === 1 ? "var(--offer)" : "transparent" }}>
+                  <span className="place">#{r.rank}</span>
+                  <Badge player={pl} />
+                  <span className="nm" style={{ color: pl.color }}>{pl.name}</span>
+                  <span className="sp" />
+                  <span className="fine">{r.tilesOnBoard} tuile trên bàn{tie ? ` · ${t("result.tie")}` : ""}</span>
+                  <span className="coins">{r.coins} xu</span>
                 </div>
               );
             })}
-            <div className="row">
-              <Tap className="btn primary" onTap={onReplay}>{t("result.replay")}</Tap>
+            <div className="row" style={{ marginTop: 8 }}>
               <Tap className="btn" onTap={onHome}>{t("result.home")}</Tap>
+              <Tap className="btn accent big" onTap={onReplay}>{t("result.replay")}</Tap>
             </div>
           </div>
         )}
@@ -240,19 +279,17 @@ export function GameScreen({ session, onPause, onReplay, onHome }: { session: Ga
         const u = ui[p.id] ?? {};
         const actions = actionsFor(p.id);
         const { w } = innerSize(slot);
-        const drawerW = Math.min(w, 760);
+        const drawerW = Math.min(w - 12, 760);
         return (
           <Rotated key={p.id} slot={slot} className="tray-seat">
-            <div className="tray" style={{ borderColor: p.color }}>
-              <div className="tray-head" style={{ background: p.color + "22" }}>
-                <span className="who" style={{ color: p.color }}>
-                  {p.icon} {p.name}
-                </span>
+            <div className="tray">
+              <div className="tray-head" style={{ background: p.color }}>
+                <Badge player={p} />
+                <span className="who">{p.name}</span>
                 <Money state={state} player={p} />
-                {u.message && <span className={`toast ${u.message.kind}`}>{u.message.text}</span>}
                 <span className="spacer" />
                 {seatCheckDone && state.phase === "exchange" && !state.ready[p.id] && (
-                  <Tap className="btn" onTap={() => setUi(p.id, { drawer: "trade", tradeDraft: { partner: null, give: [], get: [], giveCoins: 0, getCoins: 0 } })}>
+                  <Tap className="btn ghost-light" onTap={() => setUi(p.id, { drawer: "trade", tradeDraft: { partner: null, give: [], get: [], giveCoins: 0, getCoins: 0 } })}>
                     {t("exchange.newTrade")}
                   </Tap>
                 )}
@@ -261,10 +298,11 @@ export function GameScreen({ session, onPause, onReplay, onHome }: { session: Ga
                 )}
               </div>
               <div className="tray-body">
+                {u.message && <span className={`toast ${u.message.kind}`}>{u.message.text}</span>}
                 {!seatCheckDone ? (
                   <div className="body center-col">
                     <Tap
-                      className={seatChecked.includes(p.id) ? "btn big on" : "btn big primary"}
+                      className={seatChecked.includes(p.id) ? "btn big" : "btn big accent"}
                       onTap={() => setSeatChecked((s) => (s.includes(p.id) ? s : [...s, p.id]))}
                     >
                       {seatChecked.includes(p.id) ? t("seatcheck.done") : t("seatcheck.tap")}
@@ -290,16 +328,16 @@ export function GameScreen({ session, onPause, onReplay, onHome }: { session: Ga
       })}
 
       {[
-        { left: 0, top: 0, rot: 135 },
-        { left: STAGE_W - TRAY, top: 0, rot: -135 },
-        { left: 0, top: STAGE_H - TRAY, rot: 45 },
-        { left: STAGE_W - TRAY, top: STAGE_H - TRAY, rot: -45 },
+        { left: 0, top: 0 },
+        { left: STAGE_W - TRAY, top: 0 },
+        { left: 0, top: STAGE_H - TRAY },
+        { left: STAGE_W - TRAY, top: STAGE_H - TRAY },
       ].map((c, i) => (
         <div key={i} className="corner" style={{ left: c.left, top: c.top, width: TRAY, height: TRAY }}>
           <Tap className="btn pause" onTap={onPause} ariaLabel={t("pause.title")}>
-            ⏸
+            <PauseIcon />
           </Tap>
-          {i === 0 && saveStatus !== "saved" && <div className={`save-flag ${saveStatus}`}>{saveStatus === "memory" ? "⚠ chưa lưu" : saveStatus === "readonly" ? "👁 chỉ xem" : "⛔ lỗi lưu"}</div>}
+          {i === 2 && saveStatus !== "saved" && <div className="save-flag">{saveStatus === "memory" ? "Chưa lưu" : saveStatus === "readonly" ? "Chỉ xem" : "Lỗi lưu"}</div>}
         </div>
       ))}
     </div>

@@ -1,11 +1,15 @@
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
+import { computeIncome } from "../engine/income";
 import type { CellId, GameState } from "../engine/types";
-import { attrOf, playerOf } from "./util";
+import { ICON_PATHS, TILE_TINT } from "./icons";
+import { attrOf, isSquare, playerOf } from "./util";
 
 export const CELL = 90;
 export const COLS = 14;
 export const ROWS = 6;
 const GAP_COL = 7; // cột thác nước giữa hai vùng
+const ACCENT = "#FFB400";
+const INK = "#1B2A2F";
 
 export interface CellMark {
   color: string;
@@ -18,13 +22,28 @@ export interface BoardProps {
   /** Ô được nhấn mạnh (ô xây được, ô đang chọn...). */
   marks?: Map<CellId, CellMark>;
   /** Tuile xem trước (mờ). */
-  previews?: { cell: CellId; icon: string }[];
+  previews?: { cell: CellId; type: string }[];
   /** Nhãn thu nhập trên ô đầu nhóm. */
   badges?: Map<CellId, string>;
-  /** Bản đồ nhỏ: không hiện chủ/tuile chi tiết để gọn. */
+  /** Bản đồ nhỏ trong khay: bỏ chi tiết phụ. */
   mini?: boolean;
-  /** Ẩn thông tin chủ sở hữu (dùng khi xem riêng). */
   onCellTap?: (cell: CellId) => void;
+}
+
+/** Icon trò chơi đặt trong hệ toạ độ SVG của bàn. */
+function TileIcon({ type, x, y, size, opacity }: { type: string; x: number; y: number; size: number; opacity?: number }) {
+  return (
+    <g
+      transform={`translate(${x} ${y}) scale(${size / 64})`}
+      fill="none"
+      stroke={INK}
+      strokeWidth={3.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      opacity={opacity}
+      dangerouslySetInnerHTML={{ __html: ICON_PATHS[type] ?? "" }}
+    />
+  );
 }
 
 export function Board({ state, width, marks, previews, badges, mini, onCellTap }: BoardProps) {
@@ -32,16 +51,24 @@ export function Board({ state, width, marks, previews, badges, mini, onCellTap }
   const vbW = COLS * CELL;
   const vbH = ROWS * CELL;
   const height = (width * vbH) / vbW;
+  // Ô thuộc nhóm đủ bộ (để gắn nhãn "ĐỦ").
+  const complete = useMemo(() => {
+    const set = new Set<CellId>();
+    for (const p of computeIncome(state).players) for (const g of p.groups) if (g.complete) g.cells.forEach((c) => set.add(c));
+    return set;
+  }, [state]);
   const cellFrom = (target: EventTarget | null): CellId | null => {
     const el = (target as Element | null)?.closest?.("[data-cell]");
     return el ? Number(el.getAttribute("data-cell")) : null;
   };
+  const stripes = [];
+  for (let y = 0; y < vbH; y += 44) stripes.push(y);
   return (
     <svg
       className={mini ? "board mini" : "board"}
       width={width}
       height={height}
-      viewBox={`0 0 ${vbW} ${vbH}`}
+      viewBox={`-6 -6 ${vbW + 12} ${vbH + 12}`}
       onPointerDown={(e) => {
         const c = cellFrom(e.target);
         if (c !== null) down.current.set(e.pointerId, c);
@@ -54,75 +81,100 @@ export function Board({ state, width, marks, previews, badges, mini, onCellTap }
       }}
       onPointerCancel={(e) => down.current.delete(e.pointerId)}
     >
-      <defs>
-        <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#7dd3fc" />
-          <stop offset="100%" stopColor="#0ea5e9" />
-        </linearGradient>
-      </defs>
-      <rect x={0} y={0} width={vbW} height={vbH} rx={24} fill="#d9f99d" />
-      <rect x={GAP_COL * CELL + 12} y={0} width={CELL - 24} height={vbH} fill="url(#water)" rx={12} />
-      {!mini &&
-        [0.15, 0.4, 0.65, 0.9].map((f) => (
-          <text key={f} x={GAP_COL * CELL + CELL / 2} y={vbH * f} textAnchor="middle" fontSize={34} opacity={0.6}>
-            〰
-          </text>
+      <rect x={-3} y={-3} width={vbW + 6} height={vbH + 6} rx={30} fill="#EEF5E2" stroke="#F7FBEF" strokeWidth={6} />
+      {/* Thác nước: dải sọc */}
+      <g>
+        {stripes.map((y) => (
+          <rect key={y} x={GAP_COL * CELL} y={y} width={CELL} height={Math.min(22, vbH - y)} fill="#4FB3E3" />
         ))}
+        {stripes.map((y) => (
+          <rect key={`b${y}`} x={GAP_COL * CELL} y={y + 22} width={CELL} height={Math.max(0, Math.min(22, vbH - y - 22))} fill="#3A9FD2" />
+        ))}
+        <rect x={GAP_COL * CELL + 2} y={0} width={CELL - 4} height={vbH} fill="none" stroke="#E0F2FB" strokeWidth={4} />
+        {!mini && (
+          <text x={GAP_COL * CELL + CELL / 2} y={vbH / 2} textAnchor="middle" fontFamily="'Baloo 2', sans-serif" fontWeight={800} fontSize={20} letterSpacing={4} fill="#FFFFFF" transform={`rotate(90 ${GAP_COL * CELL + CELL / 2} ${vbH / 2})`}>
+            THÁC
+          </text>
+        )}
+      </g>
       {state.ruleset.topology.cells.map((tc) => {
         const cell = state.cells[tc.id];
         const owner = playerOf(state, cell.owner);
-        const tile = cell.tile ? attrOf(state, state.tileTypes[cell.tile]) : null;
+        const type = cell.tile ? state.tileTypes[cell.tile] : null;
+        const at = type ? attrOf(state, type) : null;
         const mark = marks?.get(tc.id);
         const x = tc.col * CELL;
         const y = tc.row * CELL;
-        const pad = 4;
+        const fill = owner ? owner.color + (type ? "30" : "1F") : "#F8FBF2";
+        let stroke = owner ? owner.color : "#CFE0BC";
+        let sw = owner ? 3 : 2;
+        let dash: string | undefined;
+        if (mark?.kind === "buildable") {
+          stroke = mark.color;
+          sw = 4;
+          dash = "9 6";
+        } else if (mark?.kind === "selected") {
+          stroke = INK;
+          sw = 4;
+        } else if (mark?.kind === "dealt") {
+          stroke = mark.color;
+          sw = 5;
+        }
         return (
           <g key={tc.id} data-cell={tc.id} className={mark ? `cell mark-${mark.kind}` : "cell"} style={{ cursor: onCellTap ? "pointer" : undefined }}>
-            <rect
-              x={x + pad}
-              y={y + pad}
-              width={CELL - 2 * pad}
-              height={CELL - 2 * pad}
-              rx={12}
-              fill={owner ? owner.color + (tile ? "55" : "33") : "#f7fee7"}
-              stroke={mark ? mark.color : owner ? owner.color : "#a3c76d"}
-              strokeWidth={mark ? 8 : owner ? 4 : 2}
-            />
-            {tile && (
-              <text x={x + CELL / 2} y={y + CELL / 2 + (mini ? 14 : 16)} textAnchor="middle" fontSize={mini ? 46 : 44}>
-                {tile.icon}
-              </text>
-            )}
-            {!mini && tile && (
-              <text x={x + CELL - 14} y={y + CELL - 12} textAnchor="end" fontSize={18} fontWeight={800} fill="#1f2937">
-                {tile.maxSize}
-              </text>
-            )}
+            {mark?.kind === "selected" && <rect x={x - 1} y={y - 1} width={CELL + 2} height={CELL + 2} rx={20} fill={ACCENT} opacity={0.85} />}
+            <rect className="cell-bg" x={x + 4 + sw / 2} y={y + 4 + sw / 2} width={82 - sw} height={82 - sw} rx={15} fill={fill} stroke={stroke} strokeWidth={sw} strokeDasharray={dash} />
             {!mini && (
               <>
-                <text x={x + 12} y={y + 26} fontSize={20} fontWeight={700} fill="#374151">
+                <text x={x + 12} y={y + 26} fontFamily="'Baloo 2', sans-serif" fontSize={19} fontWeight={700} fill="#2E4A3F">
                   {tc.id}
                 </text>
                 {/* lặp số ô xoay 180° để đọc được từ phía đối diện */}
-                <text x={x + CELL - 12} y={y + CELL - 26} fontSize={16} fontWeight={600} fill="#6b7280" transform={`rotate(180 ${x + CELL - 22} ${y + CELL - 32})`}>
+                <text x={x + 78} y={y + 72} fontFamily="'Baloo 2', sans-serif" fontSize={14} fontWeight={600} fill="#8BA58F" textAnchor="start" transform={`rotate(180 ${x + 78} ${y + 72})`}>
                   {tc.id}
                 </text>
               </>
             )}
-            {mini && !tile && (
-              <text x={x + CELL / 2} y={y + CELL / 2 + 12} textAnchor="middle" fontSize={34} fontWeight={700} fill="#4b5563">
+            {mini && !type && (
+              <text x={x + CELL / 2} y={y + CELL / 2 + 12} textAnchor="middle" fontFamily="'Baloo 2', sans-serif" fontSize={34} fontWeight={800} fill="#2E4A3F">
                 {tc.id}
               </text>
             )}
-            {owner && !mini && (
-              <text x={x + CELL - 12} y={y + 28} textAnchor="end" fontSize={22} fill={owner.color}>
-                {owner.icon}
-              </text>
+            {type && at && (
+              <g className="token-g">
+                <rect x={x + 17} y={y + 19} width={56} height={52} rx={14} fill="rgba(27,42,47,0.25)" />
+                <rect className="token" x={x + 17} y={y + 17} width={56} height={52} rx={14} fill={TILE_TINT[type]} />
+                <TileIcon type={type} x={x + 23} y={y + 21} size={44} />
+                {!mini &&
+                  Array.from({ length: at.maxSize }, (_, i) => (
+                    <circle key={i} cx={x + CELL / 2 + (i - (at.maxSize - 1) / 2) * 9} cy={y + 79} r={3} fill={INK} />
+                  ))}
+              </g>
+            )}
+            {owner && (
+              <g>
+                {isSquare(owner) ? (
+                  <rect x={x + 70} y={y - 2} width={24} height={24} rx={5} fill={owner.color} stroke="#FFFFFF" strokeWidth={2} />
+                ) : (
+                  <circle cx={x + 82} cy={y + 10} r={12} fill={owner.color} stroke="#FFFFFF" strokeWidth={2} />
+                )}
+                <text x={x + 82} y={y + 15} textAnchor="middle" fontSize={13} fill="#FFFFFF">
+                  {owner.icon}
+                </text>
+              </g>
+            )}
+            {complete.has(tc.id) && !mini && (
+              <g>
+                <rect x={x} y={y + 66} width={34} height={22} rx={11} fill={ACCENT} />
+                <text x={x + 17} y={y + 82} textAnchor="middle" fontFamily="'Baloo 2', sans-serif" fontWeight={800} fontSize={13} fill={INK}>
+                  ĐỦ
+                </text>
+              </g>
             )}
             {badges?.get(tc.id) && (
               <g>
-                <rect x={x + 8} y={y + CELL - 40} width={CELL - 16} height={32} rx={16} fill="#fbbf24" stroke="#92400e" strokeWidth={2} />
-                <text x={x + CELL / 2} y={y + CELL - 17} textAnchor="middle" fontSize={22} fontWeight={800} fill="#78350f">
+                <rect x={x + 10} y={y + CELL - 38} width={CELL - 20} height={32} rx={16} fill={INK} />
+                <text x={x + CELL / 2} y={y + CELL - 15} textAnchor="middle" fontFamily="'Baloo 2', sans-serif" fontSize={22} fontWeight={800} fill={ACCENT}>
                   {badges.get(tc.id)}
                 </text>
               </g>
@@ -132,12 +184,22 @@ export function Board({ state, width, marks, previews, badges, mini, onCellTap }
       })}
       {previews?.map((p) => {
         const tc = state.ruleset.topology.cells.find((c) => c.id === p.cell)!;
+        const x = tc.col * CELL;
+        const y = tc.row * CELL;
         return (
-          <text key={`pv-${p.cell}`} className="preview" x={tc.col * CELL + CELL / 2} y={tc.row * CELL + CELL / 2 + 16} textAnchor="middle" fontSize={48} opacity={0.55} pointerEvents="none">
-            {p.icon}
-          </text>
+          <g key={`pv-${p.cell}`} pointerEvents="none">
+            <rect x={x + 17} y={y + 17} width={56} height={52} rx={14} fill={TILE_TINT[p.type]} stroke="#E4572E" strokeWidth={3} strokeDasharray="6 4" />
+            <TileIcon type={p.type} x={x + 25} y={y + 23} size={40} opacity={0.65} />
+          </g>
         );
       })}
     </svg>
+  );
+}
+
+/** Thẻ tuile dạng HTML (khay, ngăn giao dịch, trang chủ). */
+export function TileGlyph({ type, size }: { type: string; size: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" stroke={INK} strokeWidth={3.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" dangerouslySetInnerHTML={{ __html: ICON_PATHS[type] ?? "" }} />
   );
 }

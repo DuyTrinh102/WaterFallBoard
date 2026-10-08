@@ -2,7 +2,10 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createGame } from "../games/thac-cong-vien/engine/game";
 import type { GameState, Player } from "../games/thac-cong-vien/engine/types";
 import { fixtureThacV1 } from "../games/thac-cong-vien/rules/fixture-thac-v1";
+import { TileGlyph } from "../games/thac-cong-vien/ui/Board";
 import { GameScreen } from "../games/thac-cong-vien/ui/GameScreen";
+import { TILE_TINT } from "../games/thac-cong-vien/ui/icons";
+import { Badge } from "../games/thac-cong-vien/ui/Tray";
 import { acquireWriterLock, downloadJson, isValid, SaveStore } from "../persistence/saveStore";
 import { t } from "../shared/i18n";
 import { Tap } from "../shared/Tap";
@@ -10,11 +13,11 @@ import { LAYOUTS, SLOTS, STAGE_H, STAGE_W } from "../table/layouts";
 import { GameSession, useSession } from "./session";
 
 const PALETTE: Omit<Player, "id" | "name">[] = [
-  { color: "#e5484d", icon: "★" },
-  { color: "#3e63dd", icon: "●" },
-  { color: "#30a46c", icon: "▲" },
-  { color: "#d97706", icon: "■" },
-  { color: "#8e4ec6", icon: "◆" },
+  { color: "#E4572E", icon: "★" },
+  { color: "#2E6FDB", icon: "●" },
+  { color: "#1F9D55", icon: "▲" },
+  { color: "#C27C00", icon: "■" },
+  { color: "#7B4FD6", icon: "◆" },
 ];
 const DEFAULT_NAMES = ["An", "Bình", "Chi", "Dũng", "Én"];
 
@@ -91,7 +94,7 @@ function Setup({ onStart, onBack }: { onStart: (r: SetupResult) => void; onBack:
           <h3>{t("setup.playerCount")}</h3>
           <div className="row">
             {([3, 4, 5] as const).map((c) => (
-              <Tap key={c} className={c === count ? "btn big on" : "btn big"} onTap={() => { setCount(c); setSwapFrom(null); }}>
+              <Tap key={c} className={c === count ? "btn big count on" : "btn big count"} onTap={() => { setCount(c); setSwapFrom(null); }}>
                 {c} người
               </Tap>
             ))}
@@ -99,7 +102,7 @@ function Setup({ onStart, onBack }: { onStart: (r: SetupResult) => void; onBack:
           <h3>{t("setup.names")}</h3>
           {Array.from({ length: count }, (_, pi) => (
             <div key={pi} className="name-row">
-              <span className="who" style={{ color: PALETTE[pi].color }}>{PALETTE[pi].icon}</span>
+              <Badge player={{ id: "", name: "", ...PALETTE[pi] }} size={48} />
               <input value={names[pi]} maxLength={14} onChange={(e) => setNames((ns) => ns.map((x, j) => (j === pi ? e.target.value : x)))} />
             </div>
           ))}
@@ -119,6 +122,7 @@ function Setup({ onStart, onBack }: { onStart: (r: SetupResult) => void; onBack:
           <h3>{t("setup.seats")}</h3>
           <div className="seat-map" style={{ width: STAGE_W * k, height: STAGE_H * k }}>
             <div className="seat-map-board" />
+            <div className="seat-map-falls" />
             {seats.map((sid, si) => {
               const slot = SLOTS[sid];
               const pi = seatOrder[si];
@@ -126,20 +130,21 @@ function Setup({ onStart, onBack }: { onStart: (r: SetupResult) => void; onBack:
                 <Tap
                   key={sid}
                   className={swapFrom === si ? "seat-map-seat on" : "seat-map-seat"}
-                  style={{ left: slot.x * k, top: slot.y * k, width: slot.w * k, height: slot.h * k, borderColor: PALETTE[pi].color }}
+                  style={{ left: slot.x * k + 3, top: slot.y * k + 3, width: slot.w * k - 6, height: slot.h * k - 6, background: PALETTE[pi].color }}
                   onTap={() => tapSeat(si)}
                 >
-                  <span style={{ color: PALETTE[pi].color }}>{PALETTE[pi].icon}</span> {names[pi] || DEFAULT_NAMES[pi]}
+                  {PALETTE[pi].icon} {names[pi] || DEFAULT_NAMES[pi]}
                 </Tap>
               );
             })}
           </div>
-          <p className="fine">{t("app.fixtureBadge")}</p>
+          <p className="hint" style={{ color: "var(--mist)" }}>Ghế đang chọn có viền vàng. Người ngồi được xếp theo chiều kim đồng hồ.</p>
+          <span className="fixture">{t("app.fixtureBadge")}</span>
         </div>
       </div>
       <div className="row">
         <Tap className="btn" onTap={onBack}>{t("setup.back")}</Tap>
-        <Tap className="btn big primary" onTap={start}>{t("setup.start")} ▶</Tap>
+        <Tap className="btn big accent" onTap={start}>{t("setup.start")}</Tap>
       </div>
     </div>
   );
@@ -161,7 +166,7 @@ function PauseMenu({ session, onResume, onQuit, onHowTo }: { session: GameSessio
   return (
     <div className="modal pause">
       <div className="modal-card">
-        <h2>⏸ {t("pause.title")}</h2>
+        <h2>{t("pause.title")}</h2>
         {countdown !== null ? (
           <div className="countdown">{countdown}</div>
         ) : (
@@ -290,28 +295,49 @@ export function App() {
       {screen === "loading" && <div className="screen center">…</div>}
       {screen === "home" && (
         <div className="screen home">
-          <div className="logo">🎢🌊🎡</div>
-          <h1>{t("app.title")}</h1>
-          <p className="sub">{t("app.subtitle")}</p>
-          <div className="game-card">
-            <div className="fixture">{t("app.fixtureBadge")}</div>
-            <p>{t("home.players")}</p>
-            <div className="row">
-              {saved && !readonly && (
-                <Tap className="btn big primary" onTap={() => openSession(saved, false)}>
-                  {t("home.continue")} (vòng {saved.round})
-                </Tap>
-              )}
+          <div className="falls" />
+          <div className="falls-foam" />
+          <div className="lede">
+            <span className="eyebrow">{t("home.eyebrow")}</span>
+            <h1>{t("app.title")}</h1>
+            <p className="pitch">{t("home.pitch")}</p>
+            <div className="row" style={{ gap: 18, marginTop: 10 }}>
               {!readonly && (
-                <Tap className={saved ? "btn big" : "btn big primary"} onTap={() => setScreen("setup")}>
+                <Tap className="btn big accent" onTap={() => setScreen("setup")}>
                   {t("home.newGame")}
                 </Tap>
               )}
-              <Tap className="btn big" onTap={() => setHowTo(true)}>{t("home.howTo")}</Tap>
+              {saved && !readonly && (
+                <Tap className="btn big outline" onTap={() => openSession(saved, false)}>
+                  {t("home.continue")} (vòng {saved.round})
+                </Tap>
+              )}
+              <Tap className="btn big soft" onTap={() => setHowTo(true)}>{t("home.howTo")}</Tap>
             </div>
+            <div className="facts">
+              <span>3–5 người</span><span>·</span><span>45–60 phút</span><span>·</span><span>Từ 10 tuổi</span>
+            </div>
+          </div>
+          <div className="park-card">
+            <div className="head">
+              <b>{t("home.tiles")}</b>
+              <span className="label" style={{ color: "#2E4A3F" }}>{t("home.tilesNote")}</span>
+            </div>
+            <div className="grid">
+              {fixtureThacV1.attractionTypes.map((a) => (
+                <div key={a.id} className="token" style={{ background: TILE_TINT[a.id] }}>
+                  <TileGlyph type={a.id} size={76} />
+                  <span className="name">{t(a.nameKey)}</span>
+                  <span className="max-badge">{a.maxSize}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="notice">
             {readonly && <p className="warn">{t("save.readonly")}</p>}
             {!storeRef.current.available && <p className="warn">{t("save.memoryOnly")}</p>}
             {notice && <p className="warn">{notice}</p>}
+            <span className="fixture">{t("app.fixtureBadge")}</span>
           </div>
         </div>
       )}
@@ -343,7 +369,7 @@ function SaveErrorBanner({ session }: { session: GameSession }) {
   return (
     <div className="modal">
       <div className="modal-card">
-        <h2>⛔ {t("save.error")}</h2>
+        <h2>{t("save.error")}</h2>
         <div className="row">
           <Tap className="btn primary" onTap={() => session.retrySave()}>{t("save.retry")}</Tap>
           <Tap className="btn" onTap={() => downloadJson(`thac-cong-vien-rescue-${state.gameId}.json`, { schemaVersion: state.schemaVersion, state, ...session.rescueData() })}>

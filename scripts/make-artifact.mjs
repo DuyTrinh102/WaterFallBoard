@@ -6,7 +6,7 @@ const styles = [...html.matchAll(/<style[^>]*>[\s\S]*?<\/style>/g)].map((m) => m
 const scripts = [html.slice(html.indexOf("<script"), html.lastIndexOf("</script>") + "</script>".length)];
 const out = [
   "<title>Thác Công viên</title>",
-  "<style>html,body{height:100%;margin:0;background:#062a2b}</style>",
+  "<style>html,body{height:100%;margin:0;background:#08262c}</style>",
   ...styles,
   '<div id="root"></div>',
   ...scripts,
