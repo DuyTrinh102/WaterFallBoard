@@ -163,7 +163,8 @@ Khay: chạm tuile [🎠4]  ──►  Bàn: chỉ ô trống của tôi đượ
 
 - Bỏ 4 nút tạm dừng ở góc; mỗi khay có nút tạm dừng nhỏ trên đầu khay (người nào cũng với tới).
 - Khay cạnh ngắn (trái/phải) chạy hết chiều cao màn hình (1080 px thay vì 600 px), chiếm 4 góc cũ.
-- Độ dày khay 216 px (trước 240 px) → vùng bàn 1488×648, ô ≈ 94 px.
+- Độ dày khay: cạnh dài 216 px, cạnh ngắn 300 px (để tuile, lời mời và ngăn giao dịch hiện đủ, không phải cuộn) → vùng bàn 1320×648, ô ≈ 92 px (bản đầu: 90 px).
+- Ngăn giao dịch của khay cạnh ngắn vươn sâu 500 px vào bàn.
 - Khi có lời mời giao dịch chờ trả lời, thẻ lời mời chiếm trọn thân khay (trước đây ở khay cạnh ngắn thẻ bị đẩy ra ngoài và mất nút Đồng ý).
 - Ngăn giao dịch mở từ khay cạnh ngắn rộng tối đa bằng chiều cao bàn, không đè lên khay cạnh dài.
-- Kiểm chứng tự động: `tests/e2e/side-seat.spec.ts` (nút Đồng ý nằm trọn trong khay cạnh trái/phải; ngăn không đè khay dưới).
+- Kiểm chứng tự động: `tests/e2e/side-seat.spec.ts` (nút Đồng ý nằm trọn trong khay cạnh trái/phải; ngăn không đè khay dưới; không vùng nào trong khay/ngăn phải cuộn).

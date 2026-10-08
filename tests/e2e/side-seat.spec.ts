@@ -10,6 +10,16 @@ async function hold(page: Page, loc: Locator, ms: number) {
   await page.mouse.up();
 }
 
+/** Không vùng nội dung nào trong khay/ngăn phải cuộn (nội dung cao hơn khung). */
+async function expectNoScroll(scope: Locator) {
+  const overflowing = await scope.evaluate((root) =>
+    [...root.querySelectorAll(".chips, .col, .offers, .trades, .picker, .tray-body")]
+      .filter((el) => el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1)
+      .map((el) => `${el.className} ${el.scrollWidth}x${el.scrollHeight} > ${el.clientWidth}x${el.clientHeight}`),
+  );
+  expect(overflowing).toEqual([]);
+}
+
 /** Nút phải nằm trọn trong khay chứa nó (không bị cắt bởi khay). */
 async function expectInside(button: Locator, tray: Locator) {
   const b = (await button.boundingBox())!;
@@ -50,6 +60,7 @@ test("người ngồi cạnh ngắn (trái/phải) nhận và chấp nhận đư
   const accept = binh.getByRole("button", { name: "Đồng ý" });
   await expect(accept).toBeVisible();
   await expectInside(accept, binh.locator(".tray"));
+  await expectNoScroll(binh);
   if (SHOTS) await page.screenshot({ path: `${SHOTS}/side-offer.png` });
   await accept.click();
   await expect(binh.getByText("Giao dịch thành công")).toBeVisible();
@@ -58,6 +69,7 @@ test("người ngồi cạnh ngắn (trái/phải) nhận và chấp nhận đư
   await binh.getByRole("button", { name: /Dũng/ }).click();
   await binh.locator(".drawer .side").nth(0).getByRole("button", { name: "Thêm xu" }).click();
   if (SHOTS) await page.screenshot({ path: `${SHOTS}/side-drawer.png` });
+  await expectNoScroll(binh);
   // Ngăn giao dịch của khay cạnh ngắn không đè lên khay cạnh dài.
   const drawer = (await binh.locator(".drawer").boundingBox())!;
   const anTray = (await an.locator(".tray").boundingBox())!;
@@ -65,6 +77,7 @@ test("người ngồi cạnh ngắn (trái/phải) nhận và chấp nhận đư
   await binh.getByRole("button", { name: "Gửi đề nghị" }).click();
   const accept2 = dung.getByRole("button", { name: "Đồng ý" });
   await expect(accept2).toBeVisible();
+  await expectNoScroll(dung);
   await expectInside(accept2, dung.locator(".tray"));
   await accept2.click();
   await expect(dung.getByText("Giao dịch thành công")).toBeVisible();

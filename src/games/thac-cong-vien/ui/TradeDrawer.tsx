@@ -64,7 +64,7 @@ function toTransfers(me: string, partner: string, d: TradeDraft): Transfer[] {
   return out;
 }
 
-export function TradeDrawer({ state, player, draft, actions }: { state: GameState; player: Player; draft: TradeDraft; actions: TrayActions }) {
+export function TradeDrawer({ state, player, draft, actions, height }: { state: GameState; player: Player; draft: TradeDraft; actions: TrayActions; height?: number }) {
   const close = () => actions.setUi({ drawer: null, tradeDraft: null });
   const setDraft = (patch: Partial<TradeDraft>) => actions.setUi({ tradeDraft: { ...draft, ...patch } });
   const toggle = (list: "give" | "get", k: string) =>
@@ -72,7 +72,7 @@ export function TradeDrawer({ state, player, draft, actions }: { state: GameStat
 
   if (!draft.partner) {
     return (
-      <div className="drawer trade">
+      <div className="drawer trade" style={{ height }}>
         <span className="title">{t("trade.choosePartner")}</span>
         <div className="chips grow" style={{ alignContent: "center", justifyContent: "center", gap: 14 }}>
           {state.players
@@ -98,7 +98,7 @@ export function TradeDrawer({ state, player, draft, actions }: { state: GameStat
     if (ok) close();
   };
   return (
-    <div className="drawer trade">
+    <div className="drawer trade" style={{ height }}>
       <div className="row between">
         <div className="row" style={{ flexWrap: "nowrap", gap: 10 }}>
           <span className="title">Giao dịch</span>

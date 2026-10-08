@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 import { useSession, type GameSession } from "../../../app/session";
 import { t } from "../../../shared/i18n";
 import { Tap } from "../../../shared/Tap";
-import { innerSize, LAYOUTS, SLOTS, STAGE_H, STAGE_W, TRAY, type SeatSlot } from "../../../table/layouts";
+import { innerSize, LAYOUTS, SLOTS, STAGE_H, STAGE_W, TRAY, TRAY_SIDE, type SeatSlot } from "../../../table/layouts";
 import { buildableCells } from "../engine/game";
 import type { CellId, Command, GameState, Phase, Player } from "../engine/types";
 import { Board, type CellMark } from "./Board";
@@ -10,9 +10,9 @@ import { TradeDrawer } from "./TradeDrawer";
 import { Badge, Money, PrivateDrawer, ReadyButton, TrayBody, type SeatUi, type TrayActions } from "./Tray";
 import { errorText } from "./util";
 
-const BOARD_X = TRAY;
+const BOARD_X = TRAY_SIDE;
 const BOARD_Y = TRAY;
-const BOARD_W = STAGE_W - 2 * TRAY;
+const BOARD_W = STAGE_W - 2 * TRAY_SIDE;
 const BOARD_H = STAGE_H - 2 * TRAY;
 // Bàn chiếm tối đa vùng giữa: chiều cao trừ hai thanh trạng thái, giữ tỉ lệ khung SVG (1272×552).
 const BOARD_PX = Math.min(BOARD_W - 24, Math.floor(((BOARD_H - 64) * 1272) / 552));
@@ -285,6 +285,8 @@ export function GameScreen({ session, onPause, onReplay, onHome }: { session: Ga
         // Ngăn kéo của khay cạnh ngắn không được rộng hơn chiều cao bàn, kẻo đè lên khay cạnh dài.
         const sideways = slot.rotation === 90 || slot.rotation === -90;
         const drawerW = Math.min(sideways ? BOARD_H - 16 : w - 12, 760);
+        // Ngăn của khay cạnh ngắn được vươn sâu hơn vào bàn (bàn rộng theo chiều ngang) để danh sách tài sản không phải cuộn.
+        const drawerH = sideways ? 500 : undefined;
         return (
           <Rotated key={p.id} slot={slot} className="tray-seat">
             <div className="tray">
@@ -323,7 +325,7 @@ export function GameScreen({ session, onPause, onReplay, onHome }: { session: Ga
             </div>
             {seatCheckDone && u.drawer === "trade" && u.tradeDraft && state.phase === "exchange" && (
               <div className="drawer-anchor" style={{ width: drawerW, left: (w - drawerW) / 2 }}>
-                <TradeDrawer state={state} player={p} draft={u.tradeDraft} actions={actions} />
+                <TradeDrawer state={state} player={p} draft={u.tradeDraft} actions={actions} height={drawerH} />
               </div>
             )}
             {seatCheckDone && u.drawer === "private" && prepTurn?.id === p.id && (
