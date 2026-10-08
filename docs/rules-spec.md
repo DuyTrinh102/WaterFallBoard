@@ -31,6 +31,8 @@ Cần chủ sản phẩm: (a) mở quyền mạng tới `cdn.svc.asmodee.net`, `
 
 Quy tắc engine: ruleset `wp-original` chỉ được bật `standardSelectable = true` khi mọi mục đánh dấu ⚑ (ảnh hưởng kết quả) là VERIFIED. Dữ liệu giả lập nằm ở `tests/fixtures/` với `rulesetId` bắt đầu bằng `fixture-` và cờ `isFixture: true`; UI tạo ván ở chế độ tiêu chuẩn không liệt kê được chúng.
 
+**Quyết định D1 (08/10/2026):** sản phẩm chạy với `fixture-thac-v1` cho đến khi có nguồn. Khi đó UI không có “chế độ tiêu chuẩn/luật gốc”; ván nào cũng mang nhãn fixture (DA-16). Fixture được thiết kế để chạm mọi nhánh luật (nhiều loại maxSize 3/4/5, 2 vùng có vùng ngăn cách, component phân nhánh) nhưng không được trình bày là số liệu thật.
+
 ## 1b. Baseline do chủ sản phẩm xác nhận (sửa mô tả ban đầu)
 
 | Baseline | Hệ quả cho engine |

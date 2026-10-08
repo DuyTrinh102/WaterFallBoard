@@ -1,4 +1,6 @@
-# Coffee Boardgame Digital — Waterfall Park (prototype)
+# Coffee Boardgame Digital — Thác Công viên (prototype)
+
+Game đầu tiên, dựa trên luật Waterfall Park; tên hiển thị nội bộ “Thác Công viên”.
 
 Trạng thái: **Milestone 0 — khảo sát & kế hoạch.** Chưa có mã nguồn game.
 
@@ -15,5 +17,6 @@ Trạng thái: **Milestone 0 — khảo sát & kế hoạch.** Chưa có mã ngu
 
 ## Giới hạn hiện tại
 
+- Chạy với dữ liệu thử nghiệm (fixture) theo quyết định D1; chưa phải luật gốc.
 - Chưa truy cập được rulebook chính thức (mạng môi trường bị chặn) → chưa mục luật nào VERIFIED.
 - Cài đặt / chạy / test / build / offline / khôi phục save: sẽ bổ sung từ Milestone 1.

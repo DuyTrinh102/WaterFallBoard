@@ -39,9 +39,9 @@ Rủi ro: L / M / H.
 | E-08 | Ready/unready, AdvancePhase đúng một lần, 4 vòng, kết thúc, tie-break | engine/phases | E-04..E-07 | Không chuyển pha khi có người chưa ready; AdvancePhase lặp không chuyển 2 lần; proposal chưa xong bị void khi rời pha trao đổi; xếp hạng + hòa | Unit | M |
 | E-09 | `getPublicView`/`getPlayerView` lọc bí mật | engine/views | E-08 | Public view không chứa dealtCards/discards/số dư; history không chứa tổng tiền | Unit: duyệt sâu object tìm khóa cấm | M |
 | E-10 | Script ván deterministic không UI 3/4/5 người | scripts/simulate | E-09 | `npm run simulate -- --players 4 --seed X` in kết quả lặp lại; invariant pass mỗi bước | Chạy 2 lần so sánh hash | L |
-| E-11 | **Nhập dữ liệu luật VERIFIED** (config + topology + SOURCES.md có trang) | rules/wp-original | RB-1..RB-6 | Mọi mục ⚑ trong rules-spec là VERIFIED; ví dụ tính trong rulebook thành test pass; topology đối xứng, 78 ô | Review chéo với ảnh bàn | **H — phụ thuộc nguồn** |
+| E-11 | **[Chờ nguồn — D1]** Nhập dữ liệu luật VERIFIED (config + topology + SOURCES.md có trang) | rules/wp-original | RB-1..RB-6 | Mọi mục ⚑ trong rules-spec là VERIFIED; ví dụ tính trong rulebook thành test pass; topology đối xứng, 78 ô | Review chéo với ảnh bàn | **H — phụ thuộc nguồn** |
 
-Gate M1: E-11 xong (không còn blocker luật ở đường chơi chính), invariant + oracle pass.
+Gate M1 (theo D1): E-00…E-10 pass trên fixture `fixture-thac-v1`, invariant + oracle pass. E-11 không chặn M2/M3 nhưng chặn việc gọi là “bám luật gốc”.
 
 ### Milestone 2 — Vertical slice 3 người
 
@@ -64,7 +64,7 @@ Gate M2: U-06.
 | ID | Kết quả | Module | Phụ thuộc | Acceptance criteria | Kiểm chứng | Rủi ro |
 |---|---|---|---|---|---|---|
 | U-07 | Layout 4 và 5 (S1/S2 chia cạnh) | table, ui | U-06 | Mọi thao tác hoàn thành từ mỗi ghế ở 1920×1080 và 3840×2160 | Playwright screenshot + chạm mô phỏng | M |
-| U-08 | Launcher, tạo ván, chọn ghế, thử xoay, presets | app | U-07 | Preset khác “Gốc” hiển thị nhãn suốt ván | e2e | L |
+| U-08 | Launcher, tạo ván, chọn ghế, thử xoay, presets (mặc định “Chơi mở tại quán”) | app | U-07 | Preset đang dùng và huy hiệu fixture hiển thị suốt ván; không có preset “Luật gốc” khi ruleset chưa VERIFIED | e2e | L |
 | U-09 | Tutorial ván mẫu | app, ui | U-08 | 3 bước hoàn thành song song | Thử tay | M |
 | U-10 | Endgame, kết quả, hòa, chơi lại sạch state | ui | E-08 | Chơi lại không mang state cũ | e2e | L |
 | P-02 | IndexedDB commit nguyên tử, chỉ publish sau `oncomplete` | persistence | P-01 | Kill tab giữa commit ⇒ load về revision trước hoặc sau, không nửa vời | Integration (fake-indexeddb) + e2e reload | H |
@@ -92,10 +92,14 @@ Pointer/touch mô phỏng (Playwright, CDP) chỉ chứng minh logic nhiều poi
 - Giao dịch > 2 bên nguyên tử: engine có, UI MVP chưa (DA-13).
 - Mọi mục trong rules-spec còn UNRESOLVED/CONFLICT.
 
-## 5. Câu hỏi cho chủ sản phẩm (tối đa 5, ảnh hưởng thiết kế)
+## 5. Quyết định của chủ sản phẩm (08/10/2026)
 
-1. **Nguồn luật (blocker):** Có thể mở quyền mạng cho môi trường tới `cdn.svc.asmodee.net` và `www.rprod.com`, hoặc commit vào `docs/sources/` PDF rulebook + ảnh rõ: bàn chơi đầy đủ, bảng thu nhập, overlay 4/5 người, aid tile? Không có, M1 chỉ chạy được với fixture.
-2. **Thiết bị:** Model/kích thước màn hình, số điểm chạm, và máy chạy (mini PC + Chromium hay all-in-one Android/Windows)? Quyết định phương án offline (local server vs PWA) và hit area.
-3. **Bí mật lúc chọn thẻ:** Đồng ý mặc định “lượt xem riêng tuần tự” (chậm thêm ~1–2 phút/vòng ở 5 người) hay ưu tiên thử “chọn tại khay” nhanh hơn nhưng dễ lộ?
-4. **Preset mặc định tại quán:** Ván mới mặc định “Gốc” (tiền ẩn) hay “Chơi mở tại quán” (tiền công khai, nhanh và dễ cho người mới)?
-5. **Tên & quyền:** Prototype/pilot có được hiển thị tên “Waterfall Park” trước khi xác nhận quyền với Repos Production, hay dùng tên nội bộ (ví dụ “Công viên Thác nước”) cho toàn bộ UI?
+| # | Câu hỏi | Quyết định | Hệ quả |
+|---|---|---|---|
+| D1 | Nguồn luật | **Chỉ chạy với fixture** | M1–M3 dùng ruleset `fixture-thac-v1` (số liệu giả lập, có nhãn). Preset “Luật gốc” không xuất hiện ở UI cho đến khi E-11 hoàn tất. Mọi màn hình hiện huy hiệu “Dữ liệu thử nghiệm — chưa phải luật gốc”. Gate M1 đổi thành: engine + test pass trên fixture; E-11 chuyển thành hạng mục chờ nguồn, không chặn M2/M3 |
+| D2 | Thiết bị / offline | **Giữ phương án offline đã đề xuất**: local static server port cố định trên mini PC + Chromium kiosk | Thông số màn hình vẫn là giả định (product-brief §3); hit area hiệu chỉnh ở M4. PWA precache vẫn là roadmap |
+| D3 | Bí mật khi chọn thẻ | **Mặc định lượt xem riêng tuần tự** | U-02 làm luồng tuần tự; “Chọn tại khay” chỉ là thử nghiệm pilot, không trong MVP |
+| D4 | Preset mặc định | **“Chơi mở tại quán”**, hướng tới người mới | Ván mới mặc định tiền công khai (DA-11). Chọn bỏ thẻ vẫn tuần tự riêng (D3). Nhãn preset hiện suốt ván; có thể chuyển sang tiền ẩn khi tạo ván |
+| D5 | Tên | **Tên nội bộ “Thác Công viên”** cho toàn bộ UI | Không hiển thị “Waterfall Park” trong bundle/UI; tên gốc chỉ còn trong tài liệu nội bộ để trích nguồn luật. `gameId = "thac-cong-vien"` |
+
+Câu hỏi còn mở (không chặn M1): model/kích thước màn hình và số điểm chạm — cần trước M4.

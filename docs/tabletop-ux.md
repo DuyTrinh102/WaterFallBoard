@@ -100,9 +100,10 @@ Khay người đến lượt                                Khay người khác
 - Thứ tự lượt theo thứ tự ghế theo chiều kim đồng hồ, bắt đầu từ ghế khác mỗi vòng.
 - Tự che sau 30 s không chạm / pause / mất focus / reload.
 - Sau khi mọi người đã chọn: **công bố đồng thời** — đế xuất hiện trên bàn cùng lúc (animation 1 s).
-- Preset “Chọn tại khay” (thử ở pilot): mọi người chọn cùng lúc trong khay mình, thẻ chỉ hiện khi đang giữ ngón tay. Nhanh hơn nhưng lộ hơn.
+- Mặc định đã chốt (D3): tuần tự. Preset “Chọn tại khay” chỉ thử ở pilot, không trong MVP: mọi người chọn cùng lúc trong khay mình, thẻ chỉ hiện khi đang giữ ngón tay. Nhanh hơn nhưng lộ hơn.
 
 ### 6.2 Tiền
+- Preset mặc định “Chơi mở tại quán” (D4): tổng tiền hiện công khai trên khay, không cần giữ-để-xem. Các quy tắc dưới áp dụng khi chọn preset “Tiền ẩn”.
 - Nút “💰 Giữ để xem” — thả là che. Không hiện tổng trong lịch sử, toast, `aria-label` (label chỉ “Tiền của bạn, giữ để xem”), hay thông báo lỗi.
 - Khi soạn deal có trả tiền: panel deal cho phép giữ để xem số dư bên cạnh ô nhập số.
 
@@ -154,6 +155,6 @@ Khay: chạm tuile [🎠4]  ──►  Bàn: chỉ ô trống của tôi đượ
 | Màn hình | Ghi chú |
 |---|---|
 | Chọn game | 1 thẻ game lớn ở giữa, chữ lặp 2 hướng |
-| Tạo ván | Số người 3/4/5 → sơ đồ ghế bấm chọn → tên/nghệ danh, màu+icon → preset luật (Gốc / Chơi mở / Nhắc giờ) → thử xoay (“Chạm vào khay của bạn”) |
+| Tạo ván | Số người 3/4/5 → sơ đồ ghế bấm chọn → tên/nghệ danh, màu+icon → preset (**Chơi mở tại quán** — mặc định / Tiền ẩn / Nhắc giờ; “Luật gốc” chỉ xuất hiện khi ruleset VERIFIED) → thử xoay (“Chạm vào khay của bạn”) |
 | Tutorial | Ván mẫu 3 bước thao tác được trong từng khay song song: chọn tuile & xây · tạo deal mẫu · giữ để xem tiền |
 | Pause/hỗ trợ | Từ bất kỳ góc: che thông tin riêng, dừng timer, menu: Tiếp tục (đếm ngược 3 s) · Luật nhanh · Nhân viên (PIN tùy chọn): khôi phục checkpoint, export, kết thúc ván |

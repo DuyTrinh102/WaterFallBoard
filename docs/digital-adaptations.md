@@ -14,8 +14,9 @@ Mọi thay đổi so với board game vật lý do màn hình chung, thời gian
 | DA-08 | **Undo chỉ trong bước chưa commit** | Tránh tranh chấp/lộ thông tin | Không có “xin đi lại” sau khi deal/xây đã commit — chặt hơn bàn thật nơi nhóm có thể thỏa thuận lại | Nút “Hủy” trên preview; sau commit chỉ có checkpoint của nhân viên (có cảnh báo) |
 | DA-09 | **Xây dựng đồng thời trong khay, commit từng tuile** | Tái hiện xây đồng thời | Có thể nhìn người khác xây trước rồi phản ứng — giống bàn thật | Preview mờ trên bàn chỉ hiện khi xác nhận; tuile commit có animation ngắn |
 | DA-10 | **Tính thu nhập tự động theo phân hoạch tối ưu** (nếu luật cho phép) | Tránh tranh cãi/tính sai | Không còn lỗi tính tay | Highlight nhóm + công thức tra bảng |
-| DA-11 | **[Preset “Chơi mở tại quán”]** tiền và lựa chọn bài công khai | Nhóm muốn nhanh | Thay đổi động lực bluff | Nhãn preset hiện suốt ván ở thanh trạng thái |
+| DA-11 | **[Preset “Chơi mở tại quán” — MẶC ĐỊNH ván mới (D4)]** tổng tiền công khai; chọn bỏ thẻ vẫn lượt xem riêng tuần tự (D3) | Dễ cho người mới, bớt thao tác giữ-để-xem | Thay đổi động lực bluff | Nhãn preset hiện suốt ván ở thanh trạng thái |
 | DA-12 | **[Preset “Nhắc giờ”]** đồng hồ nhắc ở pha trao đổi | Vận hành quán | Áp lực thời gian; **không** tự chuyển pha | Đồng hồ ở trung tâm; nhãn preset |
 | DA-13 | **Giao dịch nhiều bên**: engine hỗ trợ, UI MVP chỉ 2 bên | Giới hạn UI | Deal 3 bên phải làm thành nhiều deal 2 bên — **không** nguyên tử. Ghi là giới hạn của bản số | Tutorial + gap list |
 | DA-14 | **Chọn ô bằng minimap/ID trong khay** | Tầm với | Không | Minimap trong khay + highlight đồng bộ trên bàn chung |
 | DA-15 | **Hòa sau tie-break → đồng hạng** (chỉ nếu rulebook im lặng) | Cần kết quả xác định | Không | Màn hình kết quả hiện “Đồng hạng” |
+| DA-16 | **Chạy trên dữ liệu thử nghiệm (fixture)** cho đến khi có rulebook (D1) | Không truy cập được nguồn luật | Số liệu chia bài/thu nhập/bàn có thể khác bản gốc ⇒ chiến thuật có thể khác | Huy hiệu “Dữ liệu thử nghiệm — chưa phải luật gốc” ở thanh trạng thái và màn hình kết quả |

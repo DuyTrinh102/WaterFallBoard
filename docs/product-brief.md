@@ -1,4 +1,4 @@
-# Product Brief — Coffee Boardgame Digital: game #1 (tên nội bộ “Waterfall Park”)
+# Product Brief — Coffee Boardgame Digital: game #1 — tên hiển thị “Thác Công viên” (dựa trên luật Waterfall Park)
 
 Phiên bản 0.1 · Milestone 0 · 08/10/2026
 
@@ -26,6 +26,11 @@ Mục tiêu lần đầu: **prototype chơi trọn ván**, rồi **pilot tại m
 | Ngôn ngữ | Tiếng Việt; key văn bản tách logic | PO |
 | Kết nối | Offline trong ván | PO |
 | Đồng hồ thương lượng | Tắt (gốc); bật nhắc giờ ở preset quán | PO |
+| Dữ liệu luật | Fixture có nhãn cho đến khi có rulebook | PO (D1) |
+| Offline | Local static server + Chromium kiosk | PO (D2) |
+| Chọn bỏ thẻ | Lượt xem riêng tuần tự | PO (D3) |
+| Preset mặc định | “Chơi mở tại quán” (tiền công khai) | PO (D4) |
+| Tên hiển thị | “Thác Công viên” | PO (D5) |
 | Bot/AI | Không | PO |
 
 ## 3. Giả định phần cứng (CHƯA xác nhận — phải đo trên máy đích)
@@ -65,4 +70,4 @@ Mục tiêu lần đầu: **prototype chơi trọn ván**, rồi **pilot tại m
 
 ## 7. Pháp lý / tài sản
 
-Dùng asset tự tạo cho prototype; ghi `assets/ATTRIBUTION.md`. **Trước pilot thương mại phải xác nhận quyền dùng tên “Waterfall Park”, luật và artwork với chủ sở hữu (Repos Production / Asmodee).** Rulebook không được đóng gói vào sản phẩm.
+Dùng asset tự tạo cho prototype; ghi `assets/ATTRIBUTION.md`. UI dùng tên nội bộ **“Thác Công viên”** (D5). **Trước pilot thương mại phải xác nhận quyền dùng luật, luật và artwork với chủ sở hữu (Repos Production / Asmodee).** Rulebook không được đóng gói vào sản phẩm.
