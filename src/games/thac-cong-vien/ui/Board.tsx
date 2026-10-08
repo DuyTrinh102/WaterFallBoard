@@ -1,7 +1,8 @@
 import { useMemo, useRef } from "react";
 import { computeIncome } from "../engine/income";
 import type { CellId, GameState } from "../engine/types";
-import { ICON_PATHS, TILE_TINT } from "./icons";
+import { ART } from "./art";
+import { TILE_TINT } from "./icons";
 import { attrOf, isSquare, playerOf } from "./util";
 
 export const CELL = 90;
@@ -30,20 +31,9 @@ export interface BoardProps {
   onCellTap?: (cell: CellId) => void;
 }
 
-/** Icon trò chơi đặt trong hệ toạ độ SVG của bàn. */
+/** Tranh trò chơi đặt trong hệ toạ độ SVG của bàn (tranh vẽ trên khung 96×96). */
 function TileIcon({ type, x, y, size, opacity }: { type: string; x: number; y: number; size: number; opacity?: number }) {
-  return (
-    <g
-      transform={`translate(${x} ${y}) scale(${size / 64})`}
-      fill="none"
-      stroke={INK}
-      strokeWidth={3.5}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      opacity={opacity}
-      dangerouslySetInnerHTML={{ __html: ICON_PATHS[type] ?? "" }}
-    />
-  );
+  return <g transform={`translate(${x} ${y}) scale(${size / 96})`} opacity={opacity} dangerouslySetInnerHTML={{ __html: ART[type] ?? "" }} />;
 }
 
 export function Board({ state, width, marks, previews, badges, mini, onCellTap }: BoardProps) {
@@ -124,7 +114,7 @@ export function Board({ state, width, marks, previews, badges, mini, onCellTap }
           <g key={tc.id} data-cell={tc.id} className={mark ? `cell mark-${mark.kind}` : "cell"} style={{ cursor: onCellTap ? "pointer" : undefined }}>
             {mark?.kind === "selected" && <rect x={x - 1} y={y - 1} width={CELL + 2} height={CELL + 2} rx={20} fill={ACCENT} opacity={0.85} />}
             <rect className="cell-bg" x={x + 4 + sw / 2} y={y + 4 + sw / 2} width={82 - sw} height={82 - sw} rx={15} fill={fill} stroke={stroke} strokeWidth={sw} strokeDasharray={dash} />
-            {!mini && (
+            {!mini && !type && (
               <>
                 <text x={x + 12} y={y + 26} fontFamily="'Baloo 2', sans-serif" fontSize={19} fontWeight={700} fill="#2E4A3F">
                   {tc.id}
@@ -144,11 +134,20 @@ export function Board({ state, width, marks, previews, badges, mini, onCellTap }
               <g className="token-g">
                 <rect x={x + 17} y={y + 19} width={56} height={52} rx={14} fill="rgba(27,42,47,0.25)" />
                 <rect className="token" x={x + 17} y={y + 17} width={56} height={52} rx={14} fill={TILE_TINT[type]} />
-                <TileIcon type={type} x={x + 23} y={y + 21} size={44} />
+                <TileIcon type={type} x={x + 20} y={y + 18} size={50} />
                 {!mini &&
                   Array.from({ length: at.maxSize }, (_, i) => (
                     <circle key={i} cx={x + CELL / 2 + (i - (at.maxSize - 1) / 2) * 9} cy={y + 79} r={3} fill={INK} />
                   ))}
+              </g>
+            )}
+            {!mini && type && (
+              // Ô có công trình: số ô thành nhãn nổi để không bị tranh che.
+              <g>
+                <rect x={x + 3} y={y + 3} width={tc.id > 9 ? 30 : 22} height={21} rx={8} fill="#FFFFFF" stroke="#1B2A2F" strokeOpacity={0.25} />
+                <text x={x + 3 + (tc.id > 9 ? 15 : 11)} y={y + 19} textAnchor="middle" fontFamily="'Baloo 2', sans-serif" fontSize={16} fontWeight={800} fill="#2E4A3F">
+                  {tc.id}
+                </text>
               </g>
             )}
             {owner && (
@@ -189,7 +188,7 @@ export function Board({ state, width, marks, previews, badges, mini, onCellTap }
         return (
           <g key={`pv-${p.cell}`} pointerEvents="none">
             <rect x={x + 17} y={y + 17} width={56} height={52} rx={14} fill={TILE_TINT[p.type]} stroke="#E4572E" strokeWidth={3} strokeDasharray="6 4" />
-            <TileIcon type={p.type} x={x + 25} y={y + 23} size={40} opacity={0.65} />
+            <TileIcon type={p.type} x={x + 22} y={y + 19} size={46} opacity={0.6} />
           </g>
         );
       })}
@@ -200,6 +199,6 @@ export function Board({ state, width, marks, previews, badges, mini, onCellTap }
 /** Thẻ tuile dạng HTML (khay, ngăn giao dịch, trang chủ). */
 export function TileGlyph({ type, size }: { type: string; size: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" stroke={INK} strokeWidth={3.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" dangerouslySetInnerHTML={{ __html: ICON_PATHS[type] ?? "" }} />
+    <svg width={size} height={size} viewBox="0 0 96 96" aria-hidden="true" dangerouslySetInnerHTML={{ __html: ART[type] ?? "" }} />
   );
 }

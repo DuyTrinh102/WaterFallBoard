@@ -4,7 +4,8 @@ Ghi nguồn và giấy phép cho mọi hình ảnh, font, icon, âm thanh đưa 
 
 | File | Tác giả / nguồn | Giấy phép | Ghi chú |
 |---|---|---|---|
-| `assets/icons/*.svg`, `src/games/thac-cong-vien/ui/icons.ts` (9 icon trò chơi) | Tự vẽ cho dự án (Claude Code) | Thuộc dự án | Nét vẽ SVG, không dựa trên artwork thương mại |
+| `src/games/thac-cong-vien/ui/art.ts` (9 tranh minh hoạ trò chơi) | Tự vẽ cho dự án (Claude Code) | Thuộc dự án | SVG màu, không dựa trên artwork thương mại |
+| `assets/icons/*.svg` (bộ icon nét cũ, giữ để tham khảo) | Tự vẽ cho dự án (Claude Code) | Thuộc dự án | Không còn dùng trong game |
 | Font Baloo 2 (`@fontsource/baloo-2`) | Ek Type | SIL Open Font License 1.1 | Đóng gói trong bundle để chạy offline |
 | Font Be Vietnam Pro (`@fontsource/be-vietnam-pro`) | Lâm Bảo, Tony Le, ViệtAnh Nguyễn | SIL Open Font License 1.1 | Đóng gói trong bundle để chạy offline |
 

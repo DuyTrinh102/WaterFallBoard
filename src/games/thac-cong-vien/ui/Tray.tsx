@@ -78,7 +78,7 @@ function TileChips({ state, tiles, armed, onTap }: { state: GameState; tiles: st
         const a = attrOf(state, type);
         return (
           <Tap key={tid} className={armed === tid ? "chip tile armed" : "chip tile"} style={{ background: TILE_TINT[type] }} onTap={() => onTap?.(tid)} disabled={!onTap} ariaLabel={t(a.nameKey)}>
-            <TileGlyph type={type} size={40} />
+            <TileGlyph type={type} size={50} />
             <span className="max">{a.maxSize}</span>
           </Tap>
         );

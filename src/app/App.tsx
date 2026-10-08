@@ -326,7 +326,7 @@ export function App() {
             <div className="grid">
               {fixtureThacV1.attractionTypes.map((a) => (
                 <div key={a.id} className="token" style={{ background: TILE_TINT[a.id] }}>
-                  <TileGlyph type={a.id} size={76} />
+                  <TileGlyph type={a.id} size={96} />
                   <span className="name">{t(a.nameKey)}</span>
                   <span className="max-badge">{a.maxSize}</span>
                 </div>
