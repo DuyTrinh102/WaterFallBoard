@@ -103,3 +103,27 @@ Pointer/touch mô phỏng (Playwright, CDP) chỉ chứng minh logic nhiều poi
 | D5 | Tên | **Tên nội bộ “Thác Công viên”** cho toàn bộ UI | Không hiển thị “Waterfall Park” trong bundle/UI; tên gốc chỉ còn trong tài liệu nội bộ để trích nguồn luật. `gameId = "thac-cong-vien"` |
 
 Câu hỏi còn mở (không chặn M1): model/kích thước màn hình và số điểm chạm — cần trước M4.
+
+## 6. Trạng thái triển khai (cập nhật sau lượt triển khai MVP thử nghiệm)
+
+Kiểm chứng đã chạy: `npm test` (47 test: engine, oracle thu nhập, xoay khay), `npm run e2e` (2 luồng Playwright: 3 người trọn 1 vòng + reload khôi phục; bố cục 5 người), `npm run simulate` 3/4/5 người (deterministic, invariant OK sau mọi command).
+
+| Hạng mục | Trạng thái |
+|---|---|
+| E-00…E-10 (engine, giao dịch, xây, thu nhập + oracle, pha, view, mô phỏng) | ✅ trên fixture |
+| E-11 dữ liệu luật VERIFIED | ⏳ chờ nguồn (D1) |
+| P-01 session/command queue | ✅ |
+| T-01 bố cục 3/4/5, xoay khay, test toạ độ | ✅ |
+| T-02 pointer sessions | 🟡 nút dựa trên pointerId (nhiều người chạm cùng lúc), huỷ khi pointercancel; **chưa có kéo-thả** |
+| U-01…U-06 vertical slice | ✅ |
+| U-07 layout 4/5 | ✅ (chưa kiểm 4K) |
+| U-08 tạo ván, đổi ghế, preset, kiểm tra chỗ ngồi | ✅ |
+| U-09 tutorial | 🟡 trang hướng dẫn chữ; chưa có ván mẫu tương tác |
+| U-10 kết quả, hoà, chơi lại | ✅ |
+| P-02/P-03 IndexedDB, bản dự phòng, lỗi lưu | ✅ (mức cơ bản; chưa có log command/replay, chưa có checkpoint theo pha) |
+| P-04 reload | ✅ khôi phục ván, huỷ preview, che riêng tư (thu nhập idempotent theo vòng) |
+| P-05 khoá một tab, export/import | ✅ ; PIN nhân viên chưa làm |
+| O-01 offline | 🟡 `npm run serve` (port cố định) và bản 1 file; chưa có test rút mạng tự động |
+| Q-01, H-01…H-04 | ⏳ cần thiết bị thật |
+
+Gap list bổ sung: kéo-thả; giao dịch > 2 bên trên UI; âm thanh/mute; PIN nhân viên; checkpoint theo pha; ván mẫu tương tác; animation xây/nhận tiền tối giản.

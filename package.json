@@ -11,7 +11,8 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "simulate": "tsx scripts/simulate.ts",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "build:artifact": "npm run build:single && node scripts/make-artifact.mjs"
   },
   "dependencies": {
     "react": "19.1.0",
@@ -28,5 +29,8 @@
     "vite": "6.3.5",
     "vite-plugin-singlefile": "2.2.0",
     "vitest": "3.2.4"
+  },
+  "overrides": {
+    "rollup": "4.40.0"
   }
 }
