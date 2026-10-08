@@ -158,3 +158,12 @@ Khay: chạm tuile [🎠4]  ──►  Bàn: chỉ ô trống của tôi đượ
 | Tạo ván | Số người 3/4/5 → sơ đồ ghế bấm chọn → tên/nghệ danh, màu+icon → preset (**Chơi mở tại quán** — mặc định / Tiền ẩn / Nhắc giờ; “Luật gốc” chỉ xuất hiện khi ruleset VERIFIED) → thử xoay (“Chạm vào khay của bạn”) |
 | Tutorial | Ván mẫu 3 bước thao tác được trong từng khay song song: chọn tuile & xây · tạo deal mẫu · giữ để xem tiền |
 | Pause/hỗ trợ | Từ bất kỳ góc: che thông tin riêng, dừng timer, menu: Tiếp tục (đếm ngược 3 s) · Luật nhanh · Nhân viên (PIN tùy chọn): khôi phục checkpoint, export, kết thúc ván |
+
+## 11. Điều chỉnh sau thử nghiệm (cạnh ngắn)
+
+- Bỏ 4 nút tạm dừng ở góc; mỗi khay có nút tạm dừng nhỏ trên đầu khay (người nào cũng với tới).
+- Khay cạnh ngắn (trái/phải) chạy hết chiều cao màn hình (1080 px thay vì 600 px), chiếm 4 góc cũ.
+- Độ dày khay 216 px (trước 240 px) → vùng bàn 1488×648, ô ≈ 94 px.
+- Khi có lời mời giao dịch chờ trả lời, thẻ lời mời chiếm trọn thân khay (trước đây ở khay cạnh ngắn thẻ bị đẩy ra ngoài và mất nút Đồng ý).
+- Ngăn giao dịch mở từ khay cạnh ngắn rộng tối đa bằng chiều cao bàn, không đè lên khay cạnh dài.
+- Kiểm chứng tự động: `tests/e2e/side-seat.spec.ts` (nút Đồng ý nằm trọn trong khay cạnh trái/phải; ngăn không đè khay dưới).

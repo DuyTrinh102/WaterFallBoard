@@ -2,7 +2,7 @@
 export const STAGE_W = 1920;
 export const STAGE_H = 1080;
 /** Độ dày khay. */
-export const TRAY = 240;
+export const TRAY = 216;
 
 export type SeatId = "S" | "S1" | "S2" | "N" | "E" | "W";
 
@@ -19,15 +19,16 @@ export interface SeatSlot {
 }
 
 const LONG = STAGE_W - 2 * TRAY;
-const SHORT = STAGE_H - 2 * TRAY;
+// Khay cạnh ngắn chạy hết chiều cao màn hình (chiếm luôn 4 góc), để đủ chỗ cho thẻ giao dịch.
+const SHORT = STAGE_H;
 
 export const SLOTS: Record<SeatId, SeatSlot> = {
   S: { id: "S", x: TRAY, y: STAGE_H - TRAY, w: LONG, h: TRAY, rotation: 0, labelKey: "Cạnh dưới" },
   S1: { id: "S1", x: TRAY, y: STAGE_H - TRAY, w: LONG / 2, h: TRAY, rotation: 0, labelKey: "Dưới-trái" },
   S2: { id: "S2", x: TRAY + LONG / 2, y: STAGE_H - TRAY, w: LONG / 2, h: TRAY, rotation: 0, labelKey: "Dưới-phải" },
   N: { id: "N", x: TRAY, y: 0, w: LONG, h: TRAY, rotation: 180, labelKey: "Cạnh trên" },
-  E: { id: "E", x: STAGE_W - TRAY, y: TRAY, w: TRAY, h: SHORT, rotation: -90, labelKey: "Cạnh phải" },
-  W: { id: "W", x: 0, y: TRAY, w: TRAY, h: SHORT, rotation: 90, labelKey: "Cạnh trái" },
+  E: { id: "E", x: STAGE_W - TRAY, y: 0, w: TRAY, h: SHORT, rotation: -90, labelKey: "Cạnh phải" },
+  W: { id: "W", x: 0, y: 0, w: TRAY, h: SHORT, rotation: 90, labelKey: "Cạnh trái" },
 };
 
 /** Ghế theo chiều kim đồng hồ nhìn từ trên xuống (S → W → N → E). */

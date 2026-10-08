@@ -9,7 +9,7 @@ import { Badge } from "../games/thac-cong-vien/ui/Tray";
 import { acquireWriterLock, downloadJson, isValid, SaveStore } from "../persistence/saveStore";
 import { t } from "../shared/i18n";
 import { Tap } from "../shared/Tap";
-import { LAYOUTS, SLOTS, STAGE_H, STAGE_W } from "../table/layouts";
+import { LAYOUTS, SLOTS, STAGE_H, STAGE_W, TRAY } from "../table/layouts";
 import { GameSession, useSession } from "./session";
 
 const PALETTE: Omit<Player, "id" | "name">[] = [
@@ -121,8 +121,8 @@ function Setup({ onStart, onBack }: { onStart: (r: SetupResult) => void; onBack:
         <div>
           <h3>{t("setup.seats")}</h3>
           <div className="seat-map" style={{ width: STAGE_W * k, height: STAGE_H * k }}>
-            <div className="seat-map-board" />
-            <div className="seat-map-falls" />
+            <div className="seat-map-board" style={{ inset: TRAY * k }} />
+            <div className="seat-map-falls" style={{ top: TRAY * k, bottom: TRAY * k }} />
             {seats.map((sid, si) => {
               const slot = SLOTS[sid];
               const pi = seatOrder[si];

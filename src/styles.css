@@ -54,7 +54,7 @@ button { font-family: var(--font-body); }
 .btn.ghost-light { background: transparent; border-color: #fff; color: #fff; }
 .btn.solid-light { background: #fff; border-color: #fff; }
 .btn.holding { box-shadow: 0 0 0 6px var(--accent); }
-.btn.pause { width: 72px; height: 72px; border-radius: 36px; border: none; background: #e6f1ec; box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35); padding: 0; }
+.btn.pause { width: 52px; min-width: 52px; min-height: 52px; height: 52px; border-radius: 26px; border: none; background: rgba(255, 255, 255, 0.9); padding: 0; flex: none; }
 
 .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
 .row.between { justify-content: space-between; flex-wrap: nowrap; }
@@ -109,8 +109,8 @@ button { font-family: var(--font-body); }
 .btn.preset b { font-family: var(--font-display); font-size: 22px; }
 .btn.preset small { font-weight: 500; font-size: 15px; color: var(--ink-soft); line-height: 1.35; }
 .seat-map { position: relative; background: #082a30; border-radius: 22px; }
-.seat-map-board { position: absolute; left: 101px; top: 101px; right: 101px; bottom: 101px; border-radius: 16px; background: var(--meadow); }
-.seat-map-falls { position: absolute; left: calc(50% - 15px); top: 101px; bottom: 101px; width: 30px; background: repeating-linear-gradient(180deg, var(--water) 0 10px, var(--water-2) 10px 20px); }
+.seat-map-board { position: absolute; border-radius: 16px; background: var(--meadow); }
+.seat-map-falls { position: absolute; left: calc(50% - 15px); width: 30px; background: repeating-linear-gradient(180deg, var(--water) 0 10px, var(--water-2) 10px 20px); }
 .seat-map-seat { position: absolute; border: none; border-radius: 14px; color: #fff; font-family: var(--font-display); font-size: 24px; font-weight: 800; padding: 4px; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: 8px; }
 .seat-map-seat.on { box-shadow: 0 0 0 5px var(--accent); }
 
@@ -120,7 +120,6 @@ button { font-family: var(--font-body); }
 
 /* ---------- Bàn chơi ---------- */
 .game { position: absolute; inset: 0; background: var(--lagoon); }
-.game .pond { position: absolute; left: 160px; top: 160px; width: 1600px; height: 760px; border-radius: 80px; box-shadow: 0 0 0 2px var(--lagoon-line) inset; }
 .board-area { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 .board-wrap { filter: drop-shadow(0 18px 24px rgba(3, 20, 24, 0.55)); }
 .board .cell.mark-buildable rect.cell-bg { animation: pulse 1.2s ease-in-out infinite; }
@@ -153,8 +152,8 @@ button { font-family: var(--font-body); }
 .seat { position: absolute; }
 .seat-inner { position: absolute; transform-origin: center center; }
 .tray { position: absolute; inset: 6px; background: var(--tray); border-radius: 26px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35); }
-.tray-head { display: flex; align-items: center; gap: 12px; padding: 0 16px; height: 66px; flex: none; color: #fff; }
-.tray-head .who { font-family: var(--font-display); font-size: 28px; font-weight: 800; white-space: nowrap; }
+.tray-head { display: flex; align-items: center; gap: 10px; padding: 0 12px 0 16px; height: 64px; flex: none; color: #fff; }
+.tray-head .who { font-family: var(--font-display); font-size: 28px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .tray-head .spacer { flex: 1; }
 .money { padding: 2px 14px; border-radius: 999px; background: rgba(255, 255, 255, 0.22); font-weight: 700; font-size: 19px; white-space: nowrap; font-variant-numeric: tabular-nums; color: #fff; }
 .money-hold { min-height: 44px; padding: 0 14px; border-radius: 999px; border: none; background: rgba(255, 255, 255, 0.22); color: #fff; font-weight: 700; font-size: 17px; }
@@ -162,7 +161,7 @@ button { font-family: var(--font-body); }
 .toast { position: absolute; right: 14px; top: 76px; z-index: 2; font-size: 16px; font-weight: 600; padding: 6px 12px; border-radius: 12px; max-width: 420px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); }
 .toast.error { background: #fde4e1; color: var(--danger); }
 .toast.ok { background: var(--ok-bg); color: var(--ok); }
-.tray-body { flex: 1; min-height: 0; padding: 10px 16px 12px; overflow: hidden; position: relative; }
+.tray-body { flex: 1; min-height: 0; padding: 8px 14px 10px; overflow: hidden; position: relative; }
 .body { height: 100%; display: flex; flex-direction: column; gap: 8px; }
 .body.center-col { align-items: center; justify-content: center; }
 .two-col { display: flex; flex-direction: row; gap: 14px; height: 100%; }
@@ -192,6 +191,10 @@ button { font-family: var(--font-body); }
 .trade-card.void { background: #f1f2f1; color: var(--ink-soft); flex-direction: row; justify-content: space-between; align-items: center; }
 .trade-head { font-family: var(--font-display); font-weight: 800; font-size: 19px; }
 .trade-card .row { gap: 8px; }
+.trade-card .row.between { flex-wrap: wrap; row-gap: 6px; }
+.trade-card .actions { flex-wrap: nowrap; margin-left: auto; }
+.offers { display: flex; flex-direction: column; gap: 8px; height: 100%; overflow-y: auto; }
+.offers .label { display: flex; justify-content: space-between; }
 
 /* Ngăn kéo (giao dịch, xem riêng) */
 .drawer-anchor { position: absolute; bottom: calc(100% - 6px); }
@@ -212,7 +215,7 @@ button { font-family: var(--font-body); }
 
 /* Góc & thông báo lưu */
 .corner { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
-.save-flag { font-size: 14px; color: var(--ink); background: #f3d68e; padding: 2px 8px; border-radius: 8px; font-weight: 700; }
+.save-flag { font-size: 13px; color: var(--ink); background: #f3d68e; padding: 0 8px; border-radius: 6px; font-weight: 700; }
 .free .seat-inner { display: flex; align-items: center; justify-content: center; }
 .income-table { background: var(--tray); border-radius: 20px; padding: 12px 18px; font-size: 18px; color: var(--ink); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35); }
 .income-table table { border-collapse: collapse; font-variant-numeric: tabular-nums; }

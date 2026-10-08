@@ -14,7 +14,8 @@ const BOARD_X = TRAY;
 const BOARD_Y = TRAY;
 const BOARD_W = STAGE_W - 2 * TRAY;
 const BOARD_H = STAGE_H - 2 * TRAY;
-const BOARD_PX = 1272;
+// Bàn chiếm tối đa vùng giữa: chiều cao trừ hai thanh trạng thái, giữ tỉ lệ khung SVG (1272×552).
+const BOARD_PX = Math.min(BOARD_W - 24, Math.floor(((BOARD_H - 64) * 1272) / 552));
 const PHASES: Phase[] = ["preparation", "exchange", "construction", "income"];
 
 function Rotated({ slot, children, className }: { slot: SeatSlot; children: ReactNode; className?: string }) {
@@ -37,7 +38,7 @@ export function PauseIcon() {
   );
 }
 
-function StatusLine({ state, compact }: { state: GameState; compact?: boolean }) {
+function StatusLine({ state, compact, saveStatus }: { state: GameState; compact?: boolean; saveStatus?: string }) {
   const readyCount = state.players.filter((p) => state.ready[p.id]).length;
   return (
     <div className="status-line">
@@ -62,6 +63,9 @@ function StatusLine({ state, compact }: { state: GameState; compact?: boolean })
           <span className="gap" />
           <span>{t("status.ready", { n: readyCount, total: state.players.length })}</span>
         </>
+      )}
+      {saveStatus && saveStatus !== "saved" && (
+        <span className="save-flag">{saveStatus === "memory" ? "Chưa lưu" : saveStatus === "readonly" ? "Chỉ xem" : "Lỗi lưu"}</span>
       )}
       {state.ruleset.isFixture && !compact && (
         <>
@@ -204,7 +208,6 @@ export function GameScreen({ session, onPause, onReplay, onHome }: { session: Ga
 
   return (
     <div className="game" style={{ width: STAGE_W, height: STAGE_H }}>
-      <div className="pond" />
       <div className="board-area" style={{ left: BOARD_X, top: BOARD_Y, width: BOARD_W, height: BOARD_H }}>
         <div className="status top">
           <StatusLine state={state} compact />
@@ -213,7 +216,7 @@ export function GameScreen({ session, onPause, onReplay, onHome }: { session: Ga
           <Board state={state} width={BOARD_PX} marks={marks} previews={previews} badges={badges} onCellTap={onBoardTap} />
         </div>
         <div className="status bottom">
-          <StatusLine state={state} />
+          <StatusLine state={state} saveStatus={saveStatus} />
         </div>
         {!seatCheckDone && (
           <div className="center-overlay">
@@ -279,7 +282,9 @@ export function GameScreen({ session, onPause, onReplay, onHome }: { session: Ga
         const u = ui[p.id] ?? {};
         const actions = actionsFor(p.id);
         const { w } = innerSize(slot);
-        const drawerW = Math.min(w - 12, 760);
+        // Ngăn kéo của khay cạnh ngắn không được rộng hơn chiều cao bàn, kẻo đè lên khay cạnh dài.
+        const sideways = slot.rotation === 90 || slot.rotation === -90;
+        const drawerW = Math.min(sideways ? BOARD_H - 16 : w - 12, 760);
         return (
           <Rotated key={p.id} slot={slot} className="tray-seat">
             <div className="tray">
@@ -296,6 +301,9 @@ export function GameScreen({ session, onPause, onReplay, onHome }: { session: Ga
                 {seatCheckDone && (state.phase === "exchange" || state.phase === "construction" || state.phase === "income") && (
                   <ReadyButton state={state} player={p} run={actions.run} />
                 )}
+                <Tap className="btn pause" onTap={onPause} ariaLabel={t("pause.title")}>
+                  <PauseIcon />
+                </Tap>
               </div>
               <div className="tray-body">
                 {u.message && <span className={`toast ${u.message.kind}`}>{u.message.text}</span>}
@@ -327,19 +335,6 @@ export function GameScreen({ session, onPause, onReplay, onHome }: { session: Ga
         );
       })}
 
-      {[
-        { left: 0, top: 0 },
-        { left: STAGE_W - TRAY, top: 0 },
-        { left: 0, top: STAGE_H - TRAY },
-        { left: STAGE_W - TRAY, top: STAGE_H - TRAY },
-      ].map((c, i) => (
-        <div key={i} className="corner" style={{ left: c.left, top: c.top, width: TRAY, height: TRAY }}>
-          <Tap className="btn pause" onTap={onPause} ariaLabel={t("pause.title")}>
-            <PauseIcon />
-          </Tap>
-          {i === 2 && saveStatus !== "saved" && <div className="save-flag">{saveStatus === "memory" ? "Chưa lưu" : saveStatus === "readonly" ? "Chỉ xem" : "Lỗi lưu"}</div>}
-        </div>
-      ))}
     </div>
   );
 }

@@ -145,7 +145,7 @@ function TradeCard({ state, player, trade, ui, actions }: { state: GameState; pl
             <b>{t("trade.youGet")}:</b> {sum.get}
           </span>
         </div>
-        <div className="row" style={{ flexWrap: "nowrap" }}>
+        <div className="row actions">
           <Tap className="btn small danger" onTap={() => actions.run({ type: "cancelTrade", player: player.id, tradeId: trade.id })}>
             {iConfirmed ? t("trade.cancel") : t("trade.reject")}
           </Tap>
@@ -184,15 +184,30 @@ export function TrayBody({ state, player, ui, actions, isPrepTurn, prepWaitingFo
   }
 
   if (state.phase === "exchange") {
+    // Lời mời đang chờ mình trả lời được ưu tiên: chiếm trọn thân khay để không bị đẩy ra ngoài
+    // (khay ngắn ở cạnh trái/phải trước đây cắt mất thẻ lời mời).
+    const needsMe = Object.values(state.trades).filter(
+      (tr) => tr.status === "open" && tr.participants.includes(player.id) && tr.confirmations[player.id] !== tr.revision,
+    );
+    if (needsMe.length) {
+      return (
+        <div className="offers">
+          {needsMe.length > 1 && <div className="label">{needsMe.length} lời mời đang chờ bạn</div>}
+          {needsMe.map((tr) => (
+            <TradeCard key={tr.id} state={state} player={player} trade={tr} ui={ui} actions={actions} />
+          ))}
+        </div>
+      );
+    }
     return (
       <div className="body two-col">
-        <div className="col" style={{ flex: "0 1 auto" }}>
+        <div className="col">
           <div className="label">
             {t("exchange.myTiles")} {tiles.length} · {t("exchange.myCells")} {cells.length}
           </div>
           <TileChips state={state} tiles={tiles} />
         </div>
-        <div className="col">
+        <div className="col" style={{ flex: "1 1 320px", minWidth: 280 }}>
           <TradeList state={state} player={player} ui={ui} actions={actions} />
         </div>
       </div>
